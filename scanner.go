@@ -85,9 +85,13 @@ func (this *Scanner) Next() rune {
 	return result
 }
 
+func (this *Scanner) Rewind() {
+	this.Pos -= this.RuneWidth
+}
+
 func (this *Scanner) Peek() rune {
 	ch := this.Next()
-	this.Pos -= this.RuneWidth
+	this.Rewind()
 	return ch
 }
 
@@ -199,6 +203,7 @@ func ScanJavadocTag(scanner *Scanner) ScanFn {
 		ch := scanner.Next()
 		
 		if unicode.IsSpace(ch) {
+			scanner.Rewind()
 			scanner.Emit(TOK_JDOC_TAG)
 			return ScanJavadocLine
 		}
