@@ -19,14 +19,14 @@ type TokenType int
 const (
 	TOK_INVALID TokenType = iota
 	TOK_EOF
-	
+
 	// This content exists only in JavaDocs
 	TOK_JDOC_START					// /**
 	TOK_JDOC_END					//  */
 	TOK_JDOC_TAG					// @...
 	TOK_JDOC_NL						// Newlines are significant inside JavaDocs
 	TOK_JDOC_LINE   				// everything else
-	
+
 	// This content is java-related
 	TOK_JAVA_KEYWORD
 	TOK_JAVA_PAREN_O
@@ -49,7 +49,7 @@ type Scanner struct {
 	Input string
 	Tokens chan Token
 	State ScanFn
-	
+
 	Start int
 	Pos int
 	RuneWidth int
@@ -77,9 +77,9 @@ func (this *Scanner) Next() rune {
 	if this.Pos >= utf8.RuneCountInString(this.Input) {
 		return EOF
 	}
-	
+
 	result, width := utf8.DecodeRuneInString(this.Input[this.Pos:])
-	
+
 	this.Pos += width
 	this.RuneWidth = width
 	return result
@@ -102,47 +102,49 @@ func (this *Scanner) InputToEnd() string {
 func (this *Scanner) SkipWhitespace() {
 	for {
 		ch := this.Next()
-		
+
 		if !unicode.IsSpace(ch) {
 			this.Dec()
 			break
 		}
-		
+
 		if ch == EOF {
 			this.Emit(TOK_EOF)
 			break
 		}
 	}
-	
+
 	this.Start = this.Pos
 }
 
 func (this *Scanner) SkipLinearWhitespace() {
 	for {
 		ch := this.Next()
-		
+
 		// Consider '*' whitespace in this function, as long as it's not followed by /
 		if ch == '*' && this.Peek() != '/' {
 			continue
 		}
-		
+
 		if ch == '\n' || !unicode.IsSpace(ch) {
 			this.Dec()
 			break
 		}
-		
+
 		if ch == EOF {
 			this.Emit(TOK_EOF)
 			break
 		}
 	}
-	
+
 	this.Start = this.Pos
 }
 
+// Scanning functions
+
 func ScanBegin(scanner *Scanner) ScanFn {
 	scanner.SkipWhitespace()
-	
+
 	// First, check if a JavaDoc is beginning
 	if strings.HasPrefix(scanner.InputToEnd(), "/**") {
 		return ScanJavadocStart
@@ -166,23 +168,37 @@ func ScanJavadocEnd(scanner *Scanner) ScanFn {
 
 func ScanJavadoc(scanner *Scanner) ScanFn {
 	scanner.SkipLinearWhitespace()
-	
+
 	if strings.HasPrefix(scanner.InputToEnd(), "@") {
 		return ScanJavadocTag
 	}
-	
+
 	if strings.HasPrefix(scanner.InputToEnd(), "*/") {
 		return ScanJavadocEnd
 	}
-	
+
 	return ScanJavadocLine
 }
 
 func ScanJavadocLine(scanner *Scanner) ScanFn {
-	
+
 	for {
 		ch := scanner.Peek()
-		
+
+		if ch == '*' {
+			scanner.Inc()
+
+			if scanner.Peek() == '/' {
+				scanner.Dec()
+				if scanner.Pos > scanner.Start {
+					scanner.Emit(TOK_JDOC_LINE)
+				}
+				return ScanJavadocEnd
+			}
+
+			scanner.Dec()
+		}
+
 		if ch == '\n' {
 			if scanner.Pos > scanner.Start {
 				scanner.Emit(TOK_JDOC_LINE)
@@ -191,17 +207,17 @@ func ScanJavadocLine(scanner *Scanner) ScanFn {
 			scanner.Emit(TOK_JDOC_NL)
 			return ScanJavadoc
 		}
-		
+
 		scanner.Inc()
 	}
-	
+
 	return nil
 }
 
 func ScanJavadocTag(scanner *Scanner) ScanFn {
 	for {
 		ch := scanner.Next()
-		
+
 		if unicode.IsSpace(ch) {
 			scanner.Rewind()
 			scanner.Emit(TOK_JDOC_TAG)
@@ -210,6 +226,8 @@ func ScanJavadocTag(scanner *Scanner) ScanFn {
 	}
 }
 
+
+
 func BeginScanning(name, input string) *Scanner {
 	s := &Scanner{
 		Name: name,
@@ -217,6 +235,6 @@ func BeginScanning(name, input string) *Scanner {
 		State: ScanBegin,
 		Tokens: make(chan Token, 3),
 	}
-	
+
 	return s
 }
