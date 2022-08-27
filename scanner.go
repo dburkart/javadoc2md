@@ -145,13 +145,19 @@ func (this *Scanner) SkipLinearWhitespace() {
 func ScanBegin(scanner *Scanner) ScanFn {
 	scanner.SkipWhitespace()
 
-	// First, check if a JavaDoc is beginning
-	if strings.HasPrefix(scanner.InputToEnd(), "/**") {
-		return ScanJavadocStart
-	}
+	for {
+		// First, check if a JavaDoc is beginning
+		if strings.HasPrefix(scanner.InputToEnd(), "/**") {
+			return ScanJavadocStart
+		}
 
-	scanner.Emit(TOK_EOF)
-	return nil
+		ch := scanner.Next()
+		scanner.Start = scanner.Pos
+
+		if ch == EOF {
+			scanner.Emit(TOK_EOF)
+		}
+	}
 }
 
 func ScanJavadocStart(scanner *Scanner) ScanFn {
