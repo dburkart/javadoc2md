@@ -31,12 +31,8 @@ const (
 	TOK_JAVA_KEYWORD
 	TOK_JAVA_PAREN_O
 	TOK_JAVA_PAREN_X
-	TOK_JAVA_CURLY_O
-	TOK_JAVA_CURLO_X
-	TOK_JAVA_CLASS
-	TOK_JAVA_TYPE
+	TOK_JAVA_COMMA
 	TOK_JAVA_IDENTIFIER
-	TOK_JAVA_UNKNOWN
 )
 
 type Token struct {
@@ -117,6 +113,8 @@ func (this *Scanner) SkipWhitespace() {
 	this.Start = this.Pos
 }
 
+// Skips whitespace, except for newlines. This function is useful within
+// Javadoc comments since newlines are sometimes significant.
 func (this *Scanner) SkipLinearWhitespace() {
 	for {
 		ch := this.Next()
@@ -169,7 +167,7 @@ func ScanJavadocStart(scanner *Scanner) ScanFn {
 func ScanJavadocEnd(scanner *Scanner) ScanFn {
 	scanner.Pos += len("*/")
 	scanner.Emit(TOK_JDOC_END)
-	return ScanBegin
+	return ScanJavaLine
 }
 
 func ScanJavadoc(scanner *Scanner) ScanFn {
@@ -232,7 +230,76 @@ func ScanJavadocTag(scanner *Scanner) ScanFn {
 	}
 }
 
+func ScanJavaLine(scanner *Scanner) ScanFn {
+	for {
+		scanner.SkipWhitespace()
 
+		ch := scanner.Peek()
+
+		if ch == '{' {
+			return ScanBegin
+		}
+
+		if strings.HasPrefix(scanner.InputToEnd(), "/**") {
+			return ScanBegin
+		}
+
+		switch (ch) {
+			case '(':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_PAREN_O)
+				continue
+			case ')':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_PAREN_X)
+				continue
+			case ',':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_COMMA)
+				continue
+			case 'c':
+				if strings.HasPrefix(scanner.InputToEnd(), "class") {
+					scanner.Pos += len("class")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+			case 'e':
+				if strings.HasPrefix(scanner.InputToEnd(), "extends") {
+					scanner.Pos += len("extends")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+			case 'p':
+				if strings.HasPrefix(scanner.InputToEnd(), "public") {
+					scanner.Pos += len("public")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+
+				if strings.HasPrefix(scanner.InputToEnd(), "private") {
+					scanner.Pos += len("private")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+		}
+
+		// Pull characters off until we have an identifier
+		for {
+			if unicode.IsSpace(ch) {
+				scanner.Emit(TOK_JAVA_IDENTIFIER)
+				break
+			}
+
+			if (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') && (ch < '0' || ch > '9'){
+				scanner.Emit(TOK_JAVA_IDENTIFIER)
+				break
+			}
+
+			scanner.Inc()
+			ch = scanner.Peek()
+		}
+	}
+}
 
 func BeginScanning(name, input string) *Scanner {
 	s := &Scanner{
