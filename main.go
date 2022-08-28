@@ -9,30 +9,24 @@ package main
 import "fmt"
 
 func main() {
-	s := BeginScanning("Foo", `
-	/**
-	 * This is a javadoc comment
-	 *
-	 * @param test This is a test
-	 */
-	`)
-	
-	go func() {
-		for {
-			s.State = s.State(s)
-			if s.State == nil {
-				break
-			}
-		}
-	}()
-	
-	for {
-		t := <- s.Tokens
-		
-		fmt.Println(t)
-		
-		if t.Type == TOK_EOF {
-			break
-		}
-	}
+	s := BeginScanning("Foo", `  /**
+	   * Creates a <code>ReadAheadInputStream</code> with the specified buffer size and read-ahead
+	   * threshold
+	   *
+	   * @param inputStream The underlying input stream.
+	   * @param bufferSizeInBytes The buffer size.
+	   */
+	  public ReadAheadInputStream(
+		  InputStream inputStream, int bufferSizeInBytes) {
+		Preconditions.checkArgument(bufferSizeInBytes > 0,
+			"bufferSizeInBytes should be greater than 0, but the value is " + bufferSizeInBytes);
+		activeBuffer = ByteBuffer.allocate(bufferSizeInBytes);
+		readAheadBuffer = ByteBuffer.allocate(bufferSizeInBytes);
+		this.underlyingInputStream = inputStream;
+		activeBuffer.flip();
+		readAheadBuffer.flip();
+	  }`)
+
+	d := ParseDocument(s, "Foo/Bar/Baz")
+	fmt.Println(d)
 }

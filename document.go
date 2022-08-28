@@ -21,13 +21,16 @@ type Block struct {
 	Name string
 	Description string
 	Tags map[string]string
+
+	Attributes map[string]string
 }
 
-func MakeBlock(name string) *Block {
+func MakeBlock() *Block {
 	b := &Block{
-		Name: name,
+		Name: "",
 		Description: "",
 		Tags: make(map[string]string),
+		Attributes: make(map[string]string),
 	}
 
 	return b
