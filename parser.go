@@ -68,7 +68,44 @@ func ParseJavadoc(scanner *Scanner, document *Document) Token {
 		t = <- scanner.Tokens
 	}
 
+	t = ParseJavaContext(scanner, block, t)
+
 	document.Blocks = append(document.Blocks, *block)
 
 	return t
+}
+
+func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
+	t := head
+	lastID := ""
+	for {
+		if t.Type < TOK_JAVA_KEYWORD {
+			return t
+		}
+
+		if t.Type == TOK_JAVA_KEYWORD {
+			if t.Lexeme == "public" || t.Lexeme == "private" {
+				block.Attributes["visibility"] = t.Lexeme
+				goto next
+			}
+
+			if t.Lexeme == "class" {
+				t = <- scanner.Tokens
+
+				block.Name = t.Lexeme
+				goto next
+			}
+		}
+
+		if t.Type == TOK_JAVA_IDENTIFIER {
+			lastID = t.Lexeme
+			goto next
+		}
+
+		if t.Type == TOK_JAVA_PAREN_O && block.Name == ""{
+			block.Name = lastID
+		}
+
+next: 	t = <- scanner.Tokens
+	}
 }
