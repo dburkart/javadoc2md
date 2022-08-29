@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 func ParseDocument(scanner *Scanner, path string) *Document {
 	// First, set up our scan loop
 	go func() {
@@ -52,7 +54,12 @@ func ParseJavadoc(scanner *Scanner, document *Document) Token {
 		}
 
 		val := <- scanner.Tokens
-		block.Tags[t.Lexeme] = val.Lexeme
+		if t.Lexeme == "@param" {
+			fields := strings.Fields(val.Lexeme)
+			block.Params[fields[0]] = strings.Join(fields[1:], " ")
+		} else {
+			block.Tags[t.Lexeme] = val.Lexeme
+		}
 
 		t = <- scanner.Tokens
 		if t.Type == TOK_JDOC_NL {
