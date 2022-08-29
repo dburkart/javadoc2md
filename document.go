@@ -6,6 +6,8 @@
 
 package main
 
+import "fmt"
+
 // The Document struct represents a single "document" emitted by the transpiler.
 type Document struct {
 	Address string
@@ -16,6 +18,13 @@ func (document *Document) AddBlock(block Block) {
 	document.Blocks = append(document.Blocks, block)
 }
 
+func (document *Document) Printdbg() {
+	fmt.Println("Document: ", document.Address)
+	for _, v := range document.Blocks {
+		v.Printdbg()
+	}
+}
+
 // A single Javadoc "block", whether for a class or a function
 type Block struct {
 	Name string
@@ -24,6 +33,10 @@ type Block struct {
 	Params map[string]string
 
 	Attributes map[string]string
+}
+
+func (block *Block) Printdbg() {
+	fmt.Println("Block: ", block.Name)
 }
 
 func MakeBlock() *Block {

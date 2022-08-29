@@ -15,8 +15,10 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 
 	doc := MakeDocument(path)
 
+	t := <- scanner.Tokens
+
 	for {
-		t := ParseJavadoc(scanner, doc)
+		t := ParseJavadoc(scanner, doc, t)
 
 		if t.Type == TOK_EOF {
 			break
@@ -26,9 +28,7 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 	return doc
 }
 
-func ParseJavadoc(scanner *Scanner, document *Document) Token {
-	t := <- scanner.Tokens
-
+func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 	if t.Type != TOK_JDOC_START {
 		return t
 	}
@@ -86,6 +86,7 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 	t := head
 	lastID := ""
 	for {
+
 		if t.Type < TOK_JAVA_KEYWORD {
 			return t
 		}

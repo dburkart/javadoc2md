@@ -6,27 +6,22 @@
 
 package main
 
-import "fmt"
+import (
+	"io/ioutil"
+	"fmt"
+	"os"
+)
 
 func main() {
-	s := BeginScanning("Foo", `  /**
-	   * Creates a <code>ReadAheadInputStream</code> with the specified buffer size and read-ahead
-	   * threshold
-	   *
-	   * @param inputStream The underlying input stream.
-	   * @param bufferSizeInBytes The buffer size.
-	   */
-	  public ReadAheadInputStream(
-		  InputStream inputStream, int bufferSizeInBytes) {
-		Preconditions.checkArgument(bufferSizeInBytes > 0,
-			"bufferSizeInBytes should be greater than 0, but the value is " + bufferSizeInBytes);
-		activeBuffer = ByteBuffer.allocate(bufferSizeInBytes);
-		readAheadBuffer = ByteBuffer.allocate(bufferSizeInBytes);
-		this.underlyingInputStream = inputStream;
-		activeBuffer.flip();
-		readAheadBuffer.flip();
-	  }`)
+	f := os.Args[1]
 
-	d := ParseDocument(s, "Foo/Bar/Baz")
-	fmt.Println(d)
+	content, err := ioutil.ReadFile(f)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	s := BeginScanning(f, string(content[:]))
+
+	d := ParseDocument(s, f)
+	d.Printdbg()
 }
