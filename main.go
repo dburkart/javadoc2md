@@ -24,6 +24,9 @@ func main() {
 
 	d := ParseDocument(s, f)
 
+	symbolVisitor := SymbolVisitor{Symbols: make(map[string]string)}
+	symbolVisitor.visit(d)
+
 	visitor := MarkdownVisitor{}
 	visitor.visit(d)
 }

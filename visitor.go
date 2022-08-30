@@ -15,9 +15,28 @@ type Visitor interface {
 	visit(*Document) (bool, string)
 }
 
-type MarkdownVisitor struct {
-
+type SymbolVisitor struct {
+	Symbols map[string]string
 }
+
+func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
+	err = false
+	description = ""
+
+	for i, block := range doc.Blocks {
+		if i == 0 {
+			symbolName := block.Name
+			v.Symbols[symbolName] = doc.Address
+		} else {
+			symbolName := doc.Blocks[0].Name + "#" + block.Name
+			v.Symbols[symbolName] = doc.Address
+		}
+	}
+
+	return
+}
+
+type MarkdownVisitor struct { }
 
 func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 	err = false
