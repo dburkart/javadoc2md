@@ -23,5 +23,7 @@ func main() {
 	s := BeginScanning(f, string(content[:]))
 
 	d := ParseDocument(s, f)
-	d.Printdbg()
+
+	visitor := MarkdownVisitor{}
+	visitor.visit(d)
 }
