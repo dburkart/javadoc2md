@@ -60,18 +60,35 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		}
 
 		val := <- scanner.Tokens
+		tagKey := t.Lexeme
+		tagValue := ""
+
 		if t.Lexeme == "@param" {
 			fields := strings.Fields(val.Lexeme)
-			block.Params[fields[0]] = strings.Join(fields[1:], " ")
-		} else {
-			block.Tags[t.Lexeme] = val.Lexeme
+			tagKey = fields[0]
+			val.Lexeme = strings.Join(fields[1:], " ")
 		}
 
-		t = <- scanner.Tokens
-		if t.Type == TOK_JDOC_NL {
-			t = <- scanner.Tokens
-			continue
+		// Tags can have multiple lines as their values, so we need to
+		// capture all lines until the next tag / end
+		for {
+			if val.Type != TOK_JDOC_LINE {
+				if t.Lexeme == "@param" {
+					block.Params[tagKey] = tagValue
+				} else {
+					block.Tags[tagKey] = tagValue
+				}
+				t = val
+				break
+			}
+
+			tagValue = tagValue + " " + val.Lexeme
+			val = <- scanner.Tokens
+			if val.Type == TOK_JDOC_NL {
+				val = <- scanner.Tokens
+			}
 		}
+
 		if t.Type != TOK_JDOC_TAG {
 			break
 		}
