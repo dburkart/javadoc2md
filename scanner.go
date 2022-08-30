@@ -208,6 +208,10 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 
 		ch := scanner.Peek()
 
+		if ch == ';' {
+			return ScanBegin
+		}
+
 		if ch == '{' {
 			return ScanBegin
 		}
@@ -238,6 +242,12 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 			case 'e':
 				if strings.HasPrefix(scanner.InputToEnd(), "extends") {
 					scanner.Pos += len("extends")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+			case 'i':
+				if strings.HasPrefix(scanner.InputToEnd(), "interface") {
+					scanner.Pos += len("interface")
 					scanner.Emit(TOK_JAVA_KEYWORD)
 					continue
 				}

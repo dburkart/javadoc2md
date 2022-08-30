@@ -103,7 +103,7 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 				goto next
 			}
 
-			if t.Lexeme == "class" {
+			if t.Lexeme == "class" || t.Lexeme == "interface" {
 				t = <- scanner.Tokens
 
 				block.Name = t.Lexeme
