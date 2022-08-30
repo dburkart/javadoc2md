@@ -7,7 +7,8 @@
 package main
 
 import (
-	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -36,12 +37,22 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 	return
 }
 
-type MarkdownVisitor struct { }
+type MarkdownVisitor struct {
+	OutputDirectory string
+}
 
 func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 	err = false
 	description = ""
 	needs_newline := false
+
+	f, createErr := os.Create(filepath.Join(v.OutputDirectory, doc.Blocks[0].Name + ".md"))
+	if createErr != nil {
+		err = true
+		description = createErr.Error()
+		return
+	}
+	defer f.Close()
 
 	for i, v := range doc.Blocks {
 		heading := "## "
@@ -49,29 +60,25 @@ func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 			heading = "# "
 		}
 
-		fmt.Println(heading, v.Name)
-		fmt.Println()
-
-		fmt.Println(strings.TrimSpace(v.Description))
-		fmt.Println()
+		f.WriteString(heading + v.Name + "\n\n")
+		f.WriteString(strings.TrimSpace(v.Description) + "\n\n")
 
 		if len(v.Params) > 0 {
-			fmt.Println("* **Parameters:**")
+			f.WriteString("* **Parameters:**" + "\n")
 			needs_newline = true
 		}
 
 		for key, value := range v.Params {
-			fmt.Print("\t* `", key, "` - ", value)
-			fmt.Println()
+			f.WriteString("\t* `" + key + "` -" + value + "\n")
 		}
 
 		if ret, found := v.Tags["@return"]; found {
-			fmt.Println("* **Returns:**", ret)
+			f.WriteString("* **Returns:** " + ret + "\n")
 			needs_newline = true
 		}
 
 		if needs_newline {
-			fmt.Println()
+			f.WriteString("\n")
 		}
 		needs_newline = false
 	}
