@@ -27,6 +27,7 @@ const (
 	TOK_JAVA_PAREN_X
 	TOK_JAVA_COMMA
 	TOK_JAVA_IDENTIFIER
+	TOK_JAVA_OTHER
 )
 
 type Token struct {

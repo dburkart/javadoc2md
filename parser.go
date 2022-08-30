@@ -135,7 +135,7 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 			goto next
 		}
 
-		if t.Type == TOK_JAVA_PAREN_O && block.Name == ""{
+		if t.Type == TOK_JAVA_PAREN_O && block.Name == "" {
 			block.Name = lastID
 		}
 

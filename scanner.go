@@ -221,6 +221,18 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 		}
 
 		switch (ch) {
+			case '?':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OTHER)
+				continue
+			case '>':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OTHER)
+				continue
+			case '<':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OTHER)
+				continue
 			case '(':
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_PAREN_O)
