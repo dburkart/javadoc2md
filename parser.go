@@ -41,6 +41,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 
 	// Make our Javadoc block
 	block := MakeBlock()
+	block.Doc = document
 
 	// Pull off lines until we hit the first tag
 	for {
@@ -121,6 +122,7 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 			}
 
 			if t.Lexeme == "class" || t.Lexeme == "interface" {
+				block.Doc.Type = t.Lexeme
 				t = <- scanner.Tokens
 
 				block.Name = t.Lexeme

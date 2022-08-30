@@ -11,6 +11,7 @@ import "fmt"
 // The Document struct represents a single "document" emitted by the transpiler.
 type Document struct {
 	Address string
+	Type string
 	Blocks []Block
 }
 
@@ -27,6 +28,7 @@ func (document *Document) Printdbg() {
 
 // A single Javadoc "block", whether for a class or a function
 type Block struct {
+	Doc *Document
 	Name string
 	Description string
 	Tags map[string]string
