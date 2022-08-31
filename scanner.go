@@ -212,7 +212,7 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 			return ScanBegin
 		}
 
-		if ch == '{' {
+		if ch == '{' || ch == '}'{
 			return ScanBegin
 		}
 
@@ -221,17 +221,38 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 		}
 
 		switch (ch) {
+			case '.':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OPERATOR)
+				continue
 			case '?':
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_OTHER)
 				continue
 			case '>':
+				if strings.HasPrefix(scanner.InputToEnd(), ">>") {
+					scanner.Pos += 2
+					scanner.Emit(TOK_JAVA_OPERATOR)
+				}
+
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_OTHER)
 				continue
 			case '<':
+				if strings.HasPrefix(scanner.InputToEnd(), "<<") {
+					scanner.Pos += 2
+					scanner.Emit(TOK_JAVA_OPERATOR)
+				}
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_OTHER)
+				continue
+			case '~':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OPERATOR)
+				continue
+			case '&':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_OPERATOR)
 				continue
 			case '(':
 				scanner.Inc()
@@ -241,9 +262,79 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_PAREN_X)
 				continue
+			case '[':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_BRACKET_O)
+				continue
+			case ']':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_BRACKET_X)
+				continue
 			case ',':
 				scanner.Inc()
 				scanner.Emit(TOK_JAVA_COMMA)
+				continue
+			case '=':
+				scanner.Inc()
+				scanner.Emit(TOK_JAVA_EQUAL)
+				continue
+			case '"':
+				scanner.Inc()
+				for {
+					ch := scanner.Next()
+
+					if ch == '"' {
+						scanner.Emit(TOK_JAVA_STRING)
+						break
+					}
+				}
+				continue
+			case '/':
+				if strings.HasPrefix(scanner.InputToEnd(), "/*") {
+					scanner.Pos += 2
+					scanner.Emit(TOK_JAVA_COMMENT_O)
+					continue
+				}
+
+				if strings.HasPrefix(scanner.InputToEnd(), "//") {
+					for {
+						if scanner.Peek() == '\n' {
+							scanner.Inc()
+							scanner.Start = scanner.Pos
+							break
+						}
+
+						scanner.Inc()
+					}
+					continue
+				}
+
+				scanner.Pos += 1
+				scanner.Emit(TOK_JAVA_OPERATOR)
+				continue
+			case '*':
+				if strings.HasPrefix(scanner.InputToEnd(), "*/") {
+					scanner.Pos += 2
+					scanner.Emit(TOK_JAVA_COMMENT_O)
+					continue
+				}
+
+				scanner.Pos += 1
+				scanner.Emit(TOK_JAVA_OPERATOR)
+				continue
+			case '-':
+				if strings.HasPrefix(scanner.InputToEnd(), "->") {
+					scanner.Pos += 2
+					scanner.Emit(TOK_JAVA_OPERATOR)
+					continue
+				}
+
+				scanner.Pos += 1
+				scanner.Emit(TOK_JAVA_OPERATOR)
+				continue
+			case '+':
+				scanner.Pos += 1
+				scanner.Emit(TOK_JAVA_OPERATOR)
 				continue
 			case 'c':
 				if strings.HasPrefix(scanner.InputToEnd(), "class") {
@@ -275,6 +366,50 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 					scanner.Emit(TOK_JAVA_KEYWORD)
 					continue
 				}
+			case 's':
+				if strings.HasPrefix(scanner.InputToEnd(), "static") {
+					scanner.Pos += len("static")
+					scanner.Emit(TOK_JAVA_KEYWORD)
+					continue
+				}
+			case '@':
+				braces := 0
+				for {
+					if unicode.IsSpace(ch) && braces == 0 {
+						scanner.Emit(TOK_JAVA_ANNOTATION)
+						break
+					}
+
+					if ch == '(' || ch == '{' {
+						braces += 1
+					}
+
+					if ch == ')' || ch == '}' {
+						braces -= 1
+					}
+
+					scanner.Inc()
+					ch = scanner.Peek()
+				}
+				continue
+		}
+
+		if (ch > '0' && ch < '9') || ch == '.' {
+			for {
+				if unicode.IsSpace(ch) {
+					scanner.Emit(TOK_JAVA_NUMERIC)
+					break
+				}
+
+				if (ch < '0' || ch > '9') && (ch < 'A' || ch > 'Z') && ch != '.' {
+					scanner.Emit(TOK_JAVA_NUMERIC)
+					break
+				}
+
+				scanner.Inc()
+				ch = scanner.Peek()
+			}
+			continue
 		}
 
 		// Pull characters off until we have an identifier
@@ -284,7 +419,8 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
 				break
 			}
 
-			if (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') && (ch < '0' || ch > '9'){
+			if (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') &&
+			   (ch < '0' || ch > '9') && ch != '_' && ch != '$' {
 				scanner.Emit(TOK_JAVA_IDENTIFIER)
 				break
 			}

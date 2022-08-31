@@ -13,6 +13,8 @@ func FormatDefinition(def string) string {
 	def = strings.ReplaceAll(def, " ( ", "(")
 	def = strings.ReplaceAll(def, " )", ")")
 	def = strings.ReplaceAll(def, " , ", ", ")
+	def = strings.ReplaceAll(def, " < ", "<")
+	def = strings.ReplaceAll(def, " > ", "> ")
 
 	return def
 }
