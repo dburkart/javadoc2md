@@ -64,6 +64,10 @@ func main() {
 
 	for _, v := range visitors {
 		for _, d := range documents {
+			if len(d.Blocks) == 0 {
+				continue
+			}
+
 			v.visit(d)
 		}
 	}
