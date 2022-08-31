@@ -15,29 +15,18 @@ import (
 	"strings"
 )
 
-func main() {
-	var outputDirectory string
-	var inputDirectory string
-
-	var documents []*Document
-
-	flag.StringVar(&inputDirectory, "input", ".", "Input directory to transpile")
-	flag.StringVar(&outputDirectory, "output", ".", "Output directory to receive markdown files")
-
-	flag.Parse()
-
-	files, err := ioutil.ReadDir(inputDirectory)
+func discover(searchDirectory string, documents *[]*Document) {
+	files, err := ioutil.ReadDir(searchDirectory)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
-		fullPath := filepath.Join(inputDirectory, file.Name())
+		fullPath := filepath.Join(searchDirectory, file.Name())
 
 		if file.IsDir() {
-			fmt.Println("Skipping directory", fullPath)
-			continue
+			discover(fullPath, documents)
 		}
 
 		if strings.HasSuffix(file.Name(), ".java") {
@@ -50,9 +39,23 @@ func main() {
 			s := BeginScanning(fullPath, string(content[:]))
 			d := ParseDocument(s, fullPath)
 
-			documents = append(documents, d)
+			*documents = append(*documents, d)
 		}
 	}
+}
+
+func main() {
+	var outputDirectory string
+	var inputDirectory string
+
+	var documents []*Document
+
+	flag.StringVar(&inputDirectory, "input", ".", "Input directory to transpile")
+	flag.StringVar(&outputDirectory, "output", ".", "Output directory to receive markdown files")
+
+	flag.Parse()
+
+	discover(inputDirectory, &documents)
 
 	visitors := []Visitor{
 		&SymbolVisitor{Symbols: make(map[string]string)},

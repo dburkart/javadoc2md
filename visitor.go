@@ -26,11 +26,10 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 
 	for i, block := range doc.Blocks {
 		if i == 0 {
-			symbolName := block.Name
-			v.Symbols[symbolName] = doc.Address
+			v.Symbols[block.Name] = block.Name
 		} else {
 			symbolName := doc.Blocks[0].Name + "#" + block.Name
-			v.Symbols[symbolName] = doc.Address
+			v.Symbols[symbolName] = symbolName
 		}
 	}
 
@@ -56,7 +55,7 @@ func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 
 	for i, v := range doc.Blocks {
 		heading := "## "
-		sectionName := "`" + v.Definition + "`"
+		sectionName := "`" + v.Definition + "` {#" + v.Name + "}"
 
 		if i == 0 {
 			heading = "# "
