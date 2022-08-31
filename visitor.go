@@ -56,11 +56,21 @@ func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 
 	for i, v := range doc.Blocks {
 		heading := "## "
+		sectionName := "`" + v.Definition + "`"
+
 		if i == 0 {
 			heading = "# "
+			sectionName = v.Name
 		}
 
-		f.WriteString(heading + v.Name + "\n\n")
+		// f.WriteString(heading + v.Name + "\n\n")
+		f.WriteString(heading + sectionName + "\n\n")
+
+		// Write out the definition separately if this is the first block
+		if i == 0 {
+			f.WriteString("```java\n" + v.Definition + "\n```\n\n")
+		}
+
 		f.WriteString(strings.TrimSpace(v.Description) + "\n\n")
 
 		if len(v.Params) > 0 {

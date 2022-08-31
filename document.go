@@ -31,6 +31,7 @@ type Block struct {
 	Doc *Document
 	Name string
 	Description string
+	Definition string
 	Tags map[string]string
 	Params map[string]string
 
@@ -45,6 +46,7 @@ func MakeBlock() *Block {
 	b := &Block{
 		Name: "",
 		Description: "",
+		Definition: "",
 		Tags: make(map[string]string),
 		Params: make(map[string]string),
 		Attributes: make(map[string]string),

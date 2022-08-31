@@ -8,6 +8,15 @@ package main
 
 import "strings"
 
+func FormatDefinition(def string) string {
+	def = strings.TrimSpace(def)
+	def = strings.ReplaceAll(def, " ( ", "(")
+	def = strings.ReplaceAll(def, " )", ")")
+	def = strings.ReplaceAll(def, " , ", ", ")
+
+	return def
+}
+
 func ParseDocument(scanner *Scanner, path string) *Document {
 	// First, set up our scan loop
 	go func() {
@@ -100,6 +109,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 	}
 
 	t = ParseJavaContext(scanner, block, t)
+	block.Definition = FormatDefinition(block.Definition)
 
 	document.Blocks = append(document.Blocks, *block)
 
@@ -110,10 +120,11 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 	t := head
 	lastID := ""
 	for {
-
 		if t.Type < TOK_JAVA_KEYWORD {
 			return t
 		}
+
+		block.Definition += " " + t.Lexeme
 
 		if t.Type == TOK_JAVA_KEYWORD {
 			if t.Lexeme == "public" || t.Lexeme == "private" {
@@ -124,6 +135,8 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 			if t.Lexeme == "class" || t.Lexeme == "interface" {
 				block.Doc.Type = t.Lexeme
 				t = <- scanner.Tokens
+
+				block.Definition += " " + t.Lexeme
 
 				block.Name = t.Lexeme
 				goto next
