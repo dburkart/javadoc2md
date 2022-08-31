@@ -128,13 +128,14 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 
 		block.Definition += " " + t.Lexeme
 
-		if t.Type == TOK_JAVA_KEYWORD {
+		if t.Type == TOK_JAVA_KEYWORD || t.Type == TOK_JAVA_ANNOTATION {
 			if t.Lexeme == "public" || t.Lexeme == "private" {
 				block.Attributes["visibility"] = t.Lexeme
 				goto next
 			}
 
-			if t.Lexeme == "class" || t.Lexeme == "interface" {
+			if t.Lexeme == "class" || t.Lexeme == "interface" ||
+			   t.Lexeme == "@class" || t.Lexeme == "@interface" {
 				block.Doc.Type = t.Lexeme
 				t = <- scanner.Tokens
 
