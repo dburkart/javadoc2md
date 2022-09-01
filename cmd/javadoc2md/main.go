@@ -13,9 +13,11 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+
+	"github.com/dburkart/javadoc2md/internal/parser"
 )
 
-func discover(searchDirectory string, documents *[]*Document) {
+func discover(searchDirectory string, documents *[]*parser.Document) {
 	files, err := ioutil.ReadDir(searchDirectory)
 
 	if err != nil {
@@ -36,8 +38,8 @@ func discover(searchDirectory string, documents *[]*Document) {
 				fmt.Println(err)
 			}
 
-			s := BeginScanning(fullPath, string(content[:]))
-			d := ParseDocument(s, fullPath)
+			s := parser.BeginScanning(fullPath, string(content[:]))
+			d := parser.ParseDocument(s, fullPath)
 
 			*documents = append(*documents, d)
 		}
@@ -48,7 +50,7 @@ func main() {
 	var outputDirectory string
 	var inputDirectory string
 
-	var documents []*Document
+	var documents []*parser.Document
 
 	flag.StringVar(&inputDirectory, "input", ".", "Input directory to transpile")
 	flag.StringVar(&outputDirectory, "output", ".", "Output directory to receive markdown files")
@@ -57,18 +59,9 @@ func main() {
 
 	discover(inputDirectory, &documents)
 
-	visitors := []Visitor{
-		&SymbolVisitor{Symbols: make(map[string]string)},
-		&MarkdownVisitor{OutputDirectory: outputDirectory},
+	options := parser.VisitorConfigOptions{
+		OutputDirectory: outputDirectory,
 	}
 
-	for _, v := range visitors {
-		for _, d := range documents {
-			if len(d.Blocks) == 0 {
-				continue
-			}
-
-			v.visit(d)
-		}
-	}
+	parser.VisitDocuments(&options, &documents)
 }

@@ -4,13 +4,34 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-package main
+package parser
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+type VisitorConfigOptions struct {
+	OutputDirectory string
+}
+
+func VisitDocuments(options *VisitorConfigOptions, docs *[]*Document) {
+	visitors := []Visitor{
+		&SymbolVisitor{Symbols: make(map[string]string)},
+		&MarkdownVisitor{OutputDirectory: options.OutputDirectory},
+	}
+
+	for _, v := range visitors {
+		for _, d := range *docs {
+			if len(d.Blocks) == 0 {
+				continue
+			}
+
+			v.visit(d)
+		}
+	}
+}
 
 type Visitor interface {
 	visit(*Document) (bool, string)
