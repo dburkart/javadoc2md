@@ -7,124 +7,124 @@
 package parser
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
+    "os"
+    "path/filepath"
+    "strings"
 )
 
 type VisitorConfigOptions struct {
-	OutputDirectory string
+    OutputDirectory string
 }
 
 func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
-	var documents []*Document
+    var documents []*Document
 
-	// The symbol visitor is special in that we want to visit _every_ document
-	// with this visitor before proceeding
-	symbolVisitor := SymbolVisitor{Symbols: make(map[string]string)}
-	for {
-		doc, ok := <- docs
-		if !ok {
-			break
-		}
+    // The symbol visitor is special in that we want to visit _every_ document
+    // with this visitor before proceeding
+    symbolVisitor := SymbolVisitor{Symbols: make(map[string]string)}
+    for {
+        doc, ok := <- docs
+        if !ok {
+            break
+        }
 
-		symbolVisitor.visit(doc)
-		documents = append(documents, doc)
-	}
+        symbolVisitor.visit(doc)
+        documents = append(documents, doc)
+    }
 
-	visitors := []Visitor{
-		&MarkdownVisitor{OutputDirectory: options.OutputDirectory},
-	}
+    visitors := []Visitor{
+        &MarkdownVisitor{OutputDirectory: options.OutputDirectory},
+    }
 
-	for _, v := range visitors {
-		for _, d := range documents {
-			if len(d.Blocks) == 0 {
-				continue
-			}
+    for _, v := range visitors {
+        for _, d := range documents {
+            if len(d.Blocks) == 0 {
+                continue
+            }
 
-			v.visit(d)
-		}
-	}
+            v.visit(d)
+        }
+    }
 }
 
 type Visitor interface {
-	visit(*Document) (bool, string)
+    visit(*Document) (bool, string)
 }
 
 type SymbolVisitor struct {
-	Symbols map[string]string
+    Symbols map[string]string
 }
 
 func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
-	err = false
-	description = ""
+    err = false
+    description = ""
 
-	for i, block := range doc.Blocks {
-		if i == 0 {
-			v.Symbols[block.Name] = block.Name
-		} else {
-			symbolName := doc.Blocks[0].Name + "#" + block.Name
-			v.Symbols[symbolName] = symbolName
-		}
-	}
+    for i, block := range doc.Blocks {
+        if i == 0 {
+            v.Symbols[block.Name] = block.Name
+        } else {
+            symbolName := doc.Blocks[0].Name + "#" + block.Name
+            v.Symbols[symbolName] = symbolName
+        }
+    }
 
-	return
+    return
 }
 
 type MarkdownVisitor struct {
-	OutputDirectory string
+    OutputDirectory string
 }
 
 func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
-	err = false
-	description = ""
-	needs_newline := false
+    err = false
+    description = ""
+    needs_newline := false
 
-	f, createErr := os.Create(filepath.Join(v.OutputDirectory, doc.Blocks[0].Name + ".md"))
-	if createErr != nil {
-		err = true
-		description = createErr.Error()
-		return
-	}
-	defer f.Close()
+    f, createErr := os.Create(filepath.Join(v.OutputDirectory, doc.Blocks[0].Name + ".md"))
+    if createErr != nil {
+        err = true
+        description = createErr.Error()
+        return
+    }
+    defer f.Close()
 
-	for i, v := range doc.Blocks {
-		heading := "## "
-		sectionName := "`" + v.Definition + "` {#" + v.Name + "}"
+    for i, v := range doc.Blocks {
+        heading := "## "
+        sectionName := "`" + v.Definition + "` {#" + v.Name + "}"
 
-		if i == 0 {
-			heading = "# "
-			sectionName = v.Name
-		}
+        if i == 0 {
+            heading = "# "
+            sectionName = v.Name
+        }
 
-		// f.WriteString(heading + v.Name + "\n\n")
-		f.WriteString(heading + sectionName + "\n\n")
+        // f.WriteString(heading + v.Name + "\n\n")
+        f.WriteString(heading + sectionName + "\n\n")
 
-		// Write out the definition separately if this is the first block
-		if i == 0 {
-			f.WriteString("```java\n" + v.Definition + "\n```\n\n")
-		}
+        // Write out the definition separately if this is the first block
+        if i == 0 {
+            f.WriteString("```java\n" + v.Definition + "\n```\n\n")
+        }
 
-		f.WriteString(strings.TrimSpace(v.Description) + "\n\n")
+        f.WriteString(strings.TrimSpace(v.Description) + "\n\n")
 
-		if len(v.Params) > 0 {
-			f.WriteString("* **Parameters:**" + "\n")
-			needs_newline = true
-		}
+        if len(v.Params) > 0 {
+            f.WriteString("* **Parameters:**" + "\n")
+            needs_newline = true
+        }
 
-		for key, value := range v.Params {
-			f.WriteString("\t* `" + key + "` -" + value + "\n")
-		}
+        for key, value := range v.Params {
+            f.WriteString("\t* `" + key + "` -" + value + "\n")
+        }
 
-		if ret, found := v.Tags["@return"]; found {
-			f.WriteString("* **Returns:** " + ret + "\n")
-			needs_newline = true
-		}
+        if ret, found := v.Tags["@return"]; found {
+            f.WriteString("* **Returns:** " + ret + "\n")
+            needs_newline = true
+        }
 
-		if needs_newline {
-			f.WriteString("\n")
-		}
-		needs_newline = false
-	}
-	return
+        if needs_newline {
+            f.WriteString("\n")
+        }
+        needs_newline = false
+    }
+    return
 }
