@@ -7,44 +7,13 @@
 package main
 
 import (
-	"io/ioutil"
 	"flag"
 	"fmt"
-	"log"
-	"path/filepath"
-	"strings"
+	"io/ioutil"
 
 	"github.com/dburkart/javadoc2md/internal/parser"
+	"github.com/dburkart/javadoc2md/internal/util"
 )
-
-func discover(searchDirectory string, documents *[]*parser.Document) {
-	files, err := ioutil.ReadDir(searchDirectory)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fullPath := filepath.Join(searchDirectory, file.Name())
-
-		if file.IsDir() {
-			discover(fullPath, documents)
-		}
-
-		if strings.HasSuffix(file.Name(), ".java") {
-			fmt.Println("Parsing", fullPath)
-			content, err := ioutil.ReadFile(fullPath)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			s := parser.BeginScanning(fullPath, string(content[:]))
-			d := parser.ParseDocument(s, fullPath)
-
-			*documents = append(*documents, d)
-		}
-	}
-}
 
 func main() {
 	var outputDirectory string
@@ -57,7 +26,27 @@ func main() {
 
 	flag.Parse()
 
-	discover(inputDirectory, &documents)
+	ctx := util.FileSearch(inputDirectory)
+
+	for {
+		fileToParse := <- ctx.Files
+
+		if fileToParse == "" {
+			close(ctx.Files)
+			break
+		}
+
+		content, err := ioutil.ReadFile(fileToParse)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println("Parsing", fileToParse)
+		s := parser.BeginScanning(fileToParse, string(content[:]))
+		d := parser.ParseDocument(s, fileToParse)
+
+		documents = append(documents, d)
+	}
 
 	options := parser.VisitorConfigOptions{
 		OutputDirectory: outputDirectory,
