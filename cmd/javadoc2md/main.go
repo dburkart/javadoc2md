@@ -29,10 +29,9 @@ func main() {
 	ctx := util.FileSearch(inputDirectory)
 
 	for {
-		fileToParse := <- ctx.Files
+		fileToParse, ok := <- ctx.Files
 
-		if fileToParse == "" {
-			close(ctx.Files)
+		if !ok {
 			break
 		}
 

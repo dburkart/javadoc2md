@@ -47,7 +47,7 @@ func FileSearch(root string) *SearchContext {
 
 	go func() {
 		s.discover(root)
-		s.Files <- ""
+		close(s.Files)
 	}()
 
 	return s
