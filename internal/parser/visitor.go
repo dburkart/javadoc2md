@@ -16,14 +16,28 @@ type VisitorConfigOptions struct {
 	OutputDirectory string
 }
 
-func VisitDocuments(options *VisitorConfigOptions, docs *[]*Document) {
+func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
+	var documents []*Document
+
+	// The symbol visitor is special in that we want to visit _every_ document
+	// with this visitor before proceeding
+	symbolVisitor := SymbolVisitor{Symbols: make(map[string]string)}
+	for {
+		doc, ok := <- docs
+		if !ok {
+			break
+		}
+
+		symbolVisitor.visit(doc)
+		documents = append(documents, doc)
+	}
+
 	visitors := []Visitor{
-		&SymbolVisitor{Symbols: make(map[string]string)},
 		&MarkdownVisitor{OutputDirectory: options.OutputDirectory},
 	}
 
 	for _, v := range visitors {
-		for _, d := range *docs {
+		for _, d := range documents {
 			if len(d.Blocks) == 0 {
 				continue
 			}

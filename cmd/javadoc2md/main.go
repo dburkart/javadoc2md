@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"sync"
 
 	"github.com/dburkart/javadoc2md/internal/parser"
 	"github.com/dburkart/javadoc2md/internal/util"
@@ -19,14 +20,14 @@ func main() {
 	var outputDirectory string
 	var inputDirectory string
 
-	var documents []*parser.Document
-
 	flag.StringVar(&inputDirectory, "input", ".", "Input directory to transpile")
 	flag.StringVar(&outputDirectory, "output", ".", "Output directory to receive markdown files")
 
 	flag.Parse()
 
 	ctx := util.FileSearch(inputDirectory)
+	documents := make(chan *parser.Document)
+	var wg sync.WaitGroup
 
 	for {
 		fileToParse, ok := <- ctx.Files
@@ -40,16 +41,25 @@ func main() {
 			fmt.Println(err)
 		}
 
-		fmt.Println("Parsing", fileToParse)
-		s := parser.BeginScanning(fileToParse, string(content[:]))
-		d := parser.ParseDocument(s, fileToParse)
+		go func() {
+			s := parser.BeginScanning(fileToParse, string(content[:]))
+			d := parser.ParseDocument(s, fileToParse)
 
-		documents = append(documents, d)
+			documents <- d
+			fmt.Println("Parsed", fileToParse)
+			wg.Done()
+		}()
+		wg.Add(1)
 	}
+
+	go func() {
+		wg.Wait()
+		close(documents)
+	}()
 
 	options := parser.VisitorConfigOptions{
 		OutputDirectory: outputDirectory,
 	}
 
-	parser.VisitDocuments(&options, &documents)
+	parser.VisitDocuments(&options, documents)
 }
