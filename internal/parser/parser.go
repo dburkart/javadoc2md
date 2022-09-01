@@ -6,17 +6,24 @@
 
 package parser
 
-import "strings"
+import (
+    "regexp"
+    "strings"
+)
 
+// This is Uuuugly. We can do better.
 func FormatDefinition(def string) string {
     def = strings.TrimSpace(def)
     def = strings.ReplaceAll(def, " ( ", "(")
     def = strings.ReplaceAll(def, " )", ")")
     def = strings.ReplaceAll(def, " , ", ", ")
+    def = strings.ReplaceAll(def, " ,", ",")
     def = strings.ReplaceAll(def, " < ", "<")
     def = strings.ReplaceAll(def, " > ", "> ")
 
-    return def
+    m := regexp.MustCompile(`(.*)(,)$`)
+
+    return m.Copy().ReplaceAllString(def, "$1")
 }
 
 func ParseDocument(scanner *Scanner, path string) *Document {
@@ -135,7 +142,8 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
             }
 
             if t.Lexeme == "class" || t.Lexeme == "interface" ||
-               t.Lexeme == "@class" || t.Lexeme == "@interface" {
+               t.Lexeme == "@class" || t.Lexeme == "@interface" ||
+               t.Lexeme == "enum" {
                 block.Doc.Type = t.Lexeme
                 t = <- scanner.Tokens
 

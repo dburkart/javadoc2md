@@ -343,6 +343,12 @@ func ScanJavaLine(scanner *Scanner) ScanFn {
                     continue
                 }
             case 'e':
+                if strings.HasPrefix(scanner.InputToEnd(), "enum") {
+                    scanner.Pos += len("enum")
+                    scanner.Emit(TOK_JAVA_KEYWORD)
+                    continue
+                }
+
                 if strings.HasPrefix(scanner.InputToEnd(), "extends") {
                     scanner.Pos += len("extends")
                     scanner.Emit(TOK_JAVA_KEYWORD)
