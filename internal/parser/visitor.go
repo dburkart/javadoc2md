@@ -9,7 +9,6 @@ package parser
 import (
     "os"
     "path/filepath"
-    "strings"
 )
 
 type VisitorConfigOptions struct {
@@ -111,7 +110,22 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
             f.WriteString("```java\n" + v.Definition + "\n```\n\n")
         }
 
-        f.WriteString(strings.TrimSpace(v.Text) + "\n\n")
+        for j := 0; j < len(v.Text); j++ {
+            t := v.Text[j]
+            switch (t.Type) {
+                case TOK_JDOC_NL:
+                case TOK_JDOC_LINE:
+                    f.WriteString(t.Lexeme)
+                case TOK_JDOC_PARAM:
+                    if t.Lexeme == "@code" {
+                        f.WriteString("`")
+                        f.WriteString(v.Text[j+1].Lexeme)
+                        f.WriteString("` ")
+                        j++
+                    }
+            }
+        }
+        f.WriteString("\n\n")
 
         if len(v.Params) > 0 {
             f.WriteString("* **Parameters:**" + "\n")
