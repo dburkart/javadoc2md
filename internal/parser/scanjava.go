@@ -74,6 +74,13 @@ func ScanJavadocLine(scanner *Scanner) ScanFn {
             scanner.Dec()
         }
 
+        if ch == '{' {
+            if scanner.Pos > scanner.Start {
+                scanner.Emit(TOK_JDOC_LINE)
+            }
+            return ScanJavadocParam
+        }
+
         if ch == '\n' {
             if scanner.Pos > scanner.Start {
                 scanner.Emit(TOK_JDOC_LINE)
@@ -97,6 +104,44 @@ func ScanJavadocTag(scanner *Scanner) ScanFn {
             scanner.Rewind()
             scanner.Emit(TOK_JDOC_TAG)
             return ScanJavadocLine
+        }
+    }
+}
+
+func ScanJavadocParam(scanner *Scanner) ScanFn {
+    // Consume '{'
+    scanner.Inc()
+    scanner.Start = scanner.Pos
+
+    insideParam := false
+
+    for {
+        ch := scanner.Next()
+
+        if ch == '}' {
+            scanner.Rewind()
+            if insideParam {
+                scanner.Emit(TOK_JDOC_PARAM)
+            } else {
+                scanner.Emit(TOK_JDOC_LINE)
+            }
+
+            scanner.Pos += 2
+            scanner.Start += 2
+            return ScanJavadocLine
+        }
+
+        if ch == '@' {
+            insideParam = true
+            continue
+        }
+
+        if unicode.IsSpace(ch) && insideParam {
+            scanner.Rewind()
+            scanner.Emit(TOK_JDOC_PARAM)
+            scanner.Inc()
+            scanner.Start += 1
+            insideParam = false
         }
     }
 }

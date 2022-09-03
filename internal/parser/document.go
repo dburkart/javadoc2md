@@ -30,7 +30,7 @@ func (document *Document) Printdbg() {
 type Block struct {
     Doc *Document
     Name string
-    Text string
+    Text []Token
     Definition string
     Tags map[string]string
     Params map[string]string
@@ -45,7 +45,7 @@ func (block *Block) Printdbg() {
 func MakeBlock() *Block {
     b := &Block{
         Name: "",
-        Text: "",
+        Text: []Token{},
         Definition: "",
         Tags: make(map[string]string),
         Params: make(map[string]string),

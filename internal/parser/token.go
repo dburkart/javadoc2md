@@ -18,6 +18,7 @@ const (
     TOK_JDOC_START                  // /**
     TOK_JDOC_END                    //  */
     TOK_JDOC_TAG                    // @...
+    TOK_JDOC_PARAM                  // {@...
     TOK_JDOC_NL                     // Newlines are significant inside JavaDocs
     TOK_JDOC_LINE                   // everything else
 
