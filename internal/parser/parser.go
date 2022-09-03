@@ -66,7 +66,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
         t = <- scanner.Tokens
 
         if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL {
-            block.Description = block.Description + t.Lexeme
+            block.Text = block.Text + t.Lexeme
         } else {
             break
         }

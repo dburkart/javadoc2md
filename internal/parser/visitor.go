@@ -111,7 +111,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
             f.WriteString("```java\n" + v.Definition + "\n```\n\n")
         }
 
-        f.WriteString(strings.TrimSpace(v.Description) + "\n\n")
+        f.WriteString(strings.TrimSpace(v.Text) + "\n\n")
 
         if len(v.Params) > 0 {
             f.WriteString("* **Parameters:**" + "\n")
