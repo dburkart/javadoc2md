@@ -44,7 +44,7 @@ func main() {
         }
 
         go func() {
-            s := parser.BeginScanning(fileToParse, string(content[:]))
+            s := parser.BeginScanningJavaCode(fileToParse, string(content[:]))
             d := parser.ParseDocument(s, fileToParse)
 
             documents <- d

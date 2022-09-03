@@ -72,6 +72,21 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
     return
 }
 
+type ParameterVisitor struct {
+
+}
+
+func (p *ParameterVisitor) visit(doc *Document) (err bool, description string) {
+    err = false
+    description = ""
+
+    // for i, b := range doc.Blocks {
+    //
+    // }
+
+    return
+}
+
 type MarkdownVisitor struct {
     OutputDirectory string
     SkipPrivateDefs bool
