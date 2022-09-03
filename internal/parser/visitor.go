@@ -14,6 +14,7 @@ import (
 
 type VisitorConfigOptions struct {
     OutputDirectory string
+    SkipPrivateDefs bool
 }
 
 func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
@@ -33,7 +34,7 @@ func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
     }
 
     visitors := []Visitor{
-        &MarkdownVisitor{OutputDirectory: options.OutputDirectory},
+        &MarkdownVisitor{OutputDirectory: options.OutputDirectory, SkipPrivateDefs: options.SkipPrivateDefs},
     }
 
     for _, v := range visitors {
@@ -73,14 +74,19 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 
 type MarkdownVisitor struct {
     OutputDirectory string
+    SkipPrivateDefs bool
 }
 
-func (v *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
+func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
     err = false
     description = ""
     needs_newline := false
 
-    f, createErr := os.Create(filepath.Join(v.OutputDirectory, doc.Blocks[0].Name + ".md"))
+    if m.SkipPrivateDefs && doc.Blocks[0].Attributes["visibility"] == "private" {
+        return
+    }
+
+    f, createErr := os.Create(filepath.Join(m.OutputDirectory, doc.Blocks[0].Name + ".md"))
     if createErr != nil {
         err = true
         description = createErr.Error()

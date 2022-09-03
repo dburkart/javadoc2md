@@ -19,9 +19,11 @@ import (
 func main() {
     var outputDirectory string
     var inputDirectory string
+    var skipPrivateDefs bool
 
     flag.StringVar(&inputDirectory, "input", ".", "Input directory to transpile")
     flag.StringVar(&outputDirectory, "output", ".", "Output directory to receive markdown files")
+    skipPrivateDefs = *flag.Bool("skip-private", false, "Skip private definitions")
 
     flag.Parse()
 
@@ -59,6 +61,7 @@ func main() {
 
     options := parser.VisitorConfigOptions{
         OutputDirectory: outputDirectory,
+        SkipPrivateDefs: skipPrivateDefs,
     }
 
     parser.VisitDocuments(&options, documents)
