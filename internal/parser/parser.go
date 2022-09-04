@@ -7,8 +7,11 @@
 package parser
 
 import (
+    "fmt"
     "regexp"
     "strings"
+
+    "github.com/dburkart/javadoc2md/internal/logger"
 )
 
 // This is Uuuugly. We can do better.
@@ -39,7 +42,7 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 
     doc := MakeDocument(path)
 
-    t := <- scanner.Tokens
+    t := <-scanner.Tokens
 
     for {
         t := ParseJavadoc(scanner, doc, t)
@@ -63,7 +66,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 
     // Pull off lines until we hit the first tag
     for {
-        t = <- scanner.Tokens
+        t = <-scanner.Tokens
 
         if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL || t.Type == TOK_JDOC_PARAM {
             block.Text = append(block.Text, t)
@@ -78,7 +81,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
             break
         }
 
-        val := <- scanner.Tokens
+        val := <-scanner.Tokens
         tagKey := t.Lexeme
         tagValue := ""
 
@@ -102,9 +105,9 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
             }
 
             tagValue = tagValue + " " + val.Lexeme
-            val = <- scanner.Tokens
+            val = <-scanner.Tokens
             if val.Type == TOK_JDOC_NL {
-                val = <- scanner.Tokens
+                val = <-scanner.Tokens
             }
         }
 
@@ -114,13 +117,17 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
     }
 
     if t.Type == TOK_JDOC_END {
-        t = <- scanner.Tokens
+        t = <-scanner.Tokens
     }
 
     t = ParseJavaContext(scanner, block, t)
     block.Definition = FormatDefinition(block.Definition)
 
     document.Blocks = append(document.Blocks, *block)
+
+    if block.Name == "" {
+        logger.Debug("Could not introspect name from block " + fmt.Sprint(len(document.Blocks)) + " in document " + document.Address)
+    }
 
     return t
 }
@@ -142,10 +149,10 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
             }
 
             if t.Lexeme == "class" || t.Lexeme == "interface" ||
-               t.Lexeme == "@class" || t.Lexeme == "@interface" ||
-               t.Lexeme == "enum" {
+                t.Lexeme == "@class" || t.Lexeme == "@interface" ||
+                t.Lexeme == "enum" {
                 block.Doc.Type = t.Lexeme
-                t = <- scanner.Tokens
+                t = <-scanner.Tokens
 
                 block.Definition += " " + t.Lexeme
 
@@ -163,6 +170,7 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
             block.Name = lastID
         }
 
-next:     t = <- scanner.Tokens
+    next:
+        t = <-scanner.Tokens
     }
 }

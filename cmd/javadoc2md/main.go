@@ -12,6 +12,7 @@ import (
     "io/ioutil"
     "sync"
 
+    "github.com/dburkart/javadoc2md/internal/logger"
     "github.com/dburkart/javadoc2md/internal/parser"
     "github.com/dburkart/javadoc2md/internal/util"
 )
@@ -27,12 +28,14 @@ func main() {
 
     flag.Parse()
 
+    logger.Initialize()
+
     ctx := util.FileSearch(inputDirectory)
     documents := make(chan *parser.Document)
     var wg sync.WaitGroup
 
     for {
-        fileToParse, ok := <- ctx.Files
+        fileToParse, ok := <-ctx.Files
 
         if !ok {
             break
@@ -48,7 +51,6 @@ func main() {
             d := parser.ParseDocument(s, fileToParse)
 
             documents <- d
-            fmt.Println("Parsed", fileToParse)
             wg.Done()
         }()
         wg.Add(1)
