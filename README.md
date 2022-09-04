@@ -8,7 +8,9 @@ files, and writes Docusaurus-compatible markdown files.
 ```
 Usage of javadoc2md:
   -input string
-        Input directory to transpile (default ".")
+    Input directory to transpile (default ".")
   -output string
-        Output directory to receive markdown files (default ".")
+    Output directory to receive markdown files (default ".")
+  -skip-private
+    Skip private definitions
 ```
