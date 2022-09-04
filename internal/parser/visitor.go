@@ -77,27 +77,33 @@ type MarkdownVisitor struct {
     SkipPrivateDefs bool
 }
 
-func (m *MarkdownVisitor) interpolateText(tokens []Token) string {
-    interpolatedText := ""
+// Given a MixedText token list, return a string with all the parameters
+// evaluated.
+func (m *MarkdownVisitor) interpolateText(tokens MixedText) string {
+    interpolationArray := make([]string, len(tokens))
 
     for i := 0; i < len(tokens); i++ {
         token := tokens[i]
 
         switch token.Type {
         case TOK_JDOC_NL:
+            interpolationArray[i] = "\n"
         case TOK_JDOC_LINE:
-            interpolatedText += token.Lexeme
+            interpolationArray[i] = strings.TrimSpace(token.Lexeme) + " "
         case TOK_JDOC_PARAM:
+            str := ""
             if token.Lexeme == "@code" {
-                interpolatedText += "`"
-                interpolatedText += tokens[i+1].Lexeme
-                interpolatedText += "` "
+                str += "`"
+                str += strings.TrimSpace(tokens[i+1].Lexeme)
+                str += "`"
                 i++
             }
+
+            interpolationArray[i] = str + " "
         }
     }
 
-    return interpolatedText
+    return strings.TrimSpace(strings.Join(interpolationArray, ""))
 }
 
 func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
@@ -125,8 +131,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
             heading = "# "
             sectionName = v.Name
         }
-
-        // f.WriteString(heading + v.Name + "\n\n")
+        
         f.WriteString(heading + sectionName + "\n\n")
 
         // Write out the definition separately if this is the first block
@@ -137,7 +142,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
         // Before writing out content, write out any deprecated admonitions
         if ret, found := v.Tags["@deprecated"]; found {
             f.WriteString(":::caution Deprecated\n\n")
-            f.WriteString(strings.TrimSpace(ret) + "\n\n")
+            f.WriteString(m.interpolateText(ret) + "\n\n")
             f.WriteString(":::\n\n")
         }
 
@@ -150,11 +155,11 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
         }
 
         for key, value := range v.Params {
-            f.WriteString("\t* `" + key + "` -" + value + "\n")
+            f.WriteString("\t* `" + key + "` - " + m.interpolateText(value) + "\n")
         }
 
         if ret, found := v.Tags["@return"]; found {
-            f.WriteString("* **Returns:** " + ret + "\n")
+            f.WriteString("* **Returns:** " + m.interpolateText(ret) + "\n")
             needs_newline = true
         }
 
