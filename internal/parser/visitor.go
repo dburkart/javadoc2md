@@ -77,6 +77,29 @@ type MarkdownVisitor struct {
     SkipPrivateDefs bool
 }
 
+func (m *MarkdownVisitor) interpolateText(tokens []Token) string {
+    interpolatedText := ""
+
+    for i := 0; i < len(tokens); i++ {
+        token := tokens[i]
+
+        switch token.Type {
+        case TOK_JDOC_NL:
+        case TOK_JDOC_LINE:
+            interpolatedText += token.Lexeme
+        case TOK_JDOC_PARAM:
+            if token.Lexeme == "@code" {
+                interpolatedText += "`"
+                interpolatedText += tokens[i+1].Lexeme
+                interpolatedText += "` "
+                i++
+            }
+        }
+    }
+
+    return interpolatedText
+}
+
 func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
     err = false
     description = ""
@@ -118,21 +141,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
             f.WriteString(":::\n\n")
         }
 
-        for j := 0; j < len(v.Text); j++ {
-            t := v.Text[j]
-            switch (t.Type) {
-                case TOK_JDOC_NL:
-                case TOK_JDOC_LINE:
-                    f.WriteString(t.Lexeme)
-                case TOK_JDOC_PARAM:
-                    if t.Lexeme == "@code" {
-                        f.WriteString("`")
-                        f.WriteString(v.Text[j+1].Lexeme)
-                        f.WriteString("` ")
-                        j++
-                    }
-            }
-        }
+        f.WriteString(m.interpolateText(v.Text))
         f.WriteString("\n\n")
 
         if len(v.Params) > 0 {
