@@ -137,6 +137,10 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
     lastID := ""
     for {
         if t.Type < TOK_JAVA_KEYWORD {
+            if block.Name == "" {
+                block.Name = lastID
+            }
+
             return t
         }
 
@@ -167,6 +171,10 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
         }
 
         if t.Type == TOK_JAVA_PAREN_O && block.Name == "" {
+            block.Name = lastID
+        }
+
+        if t.Type == TOK_JAVA_EQUAL && block.Name == "" {
             block.Name = lastID
         }
 
