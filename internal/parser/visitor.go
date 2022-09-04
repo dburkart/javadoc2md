@@ -9,6 +9,7 @@ package parser
 import (
     "os"
     "path/filepath"
+    "strings"
 )
 
 type VisitorConfigOptions struct {
@@ -108,6 +109,13 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
         // Write out the definition separately if this is the first block
         if i == 0 {
             f.WriteString("```java\n" + v.Definition + "\n```\n\n")
+        }
+
+        // Before writing out content, write out any deprecated admonitions
+        if ret, found := v.Tags["@deprecated"]; found {
+            f.WriteString(":::caution Deprecated\n\n")
+            f.WriteString(strings.TrimSpace(ret) + "\n\n")
+            f.WriteString(":::\n\n")
         }
 
         for j := 0; j < len(v.Text); j++ {
