@@ -26,14 +26,18 @@ func (document *Document) Printdbg() {
     }
 }
 
+// Really, we should be building an AST since Javadoc can have parameters
+// virtually anywhere, but storing token lists in Blocks is simpler for now.
+type MixedText []Token
+
 // A single Javadoc "block", whether for a class or a function
 type Block struct {
     Doc *Document
     Name string
-    Text []Token
+    Text MixedText
     Definition string
-    Tags map[string]string
-    Params map[string]string
+    Tags map[string]MixedText
+    Params map[string]MixedText
 
     Attributes map[string]string
 }
@@ -47,8 +51,8 @@ func MakeBlock() *Block {
         Name: "",
         Text: []Token{},
         Definition: "",
-        Tags: make(map[string]string),
-        Params: make(map[string]string),
+        Tags: make(map[string]MixedText),
+        Params: make(map[string]MixedText),
         Attributes: make(map[string]string),
     }
 
