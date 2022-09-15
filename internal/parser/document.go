@@ -11,7 +11,6 @@ import "fmt"
 // The Document struct represents a single "document" emitted by the transpiler.
 type Document struct {
     Address string
-    Type string
     Blocks []Block
 }
 
@@ -26,6 +25,17 @@ func (document *Document) Printdbg() {
     }
 }
 
+type BlockType int
+
+const (
+    BLOCK_INVALID BlockType = iota
+    BLOCK_CLASS
+    BLOCK_INTERFACE
+    BLOCK_ENUM
+    BLOCK_METHOD
+    BLOCK_VARIABLE
+)
+
 // Really, we should be building an AST since Javadoc can have parameters
 // virtually anywhere, but storing token lists in Blocks is simpler for now.
 type MixedText []Token
@@ -34,6 +44,7 @@ type MixedText []Token
 type Block struct {
     Doc *Document
     Name string
+    Type BlockType
     Text MixedText
     Definition string
     Tags map[string]MixedText

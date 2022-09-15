@@ -150,7 +150,6 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
             if t.Lexeme == "class" || t.Lexeme == "interface" ||
                 t.Lexeme == "@class" || t.Lexeme == "@interface" ||
                 t.Lexeme == "enum" {
-                block.Doc.Type = t.Lexeme
                 t = <-scanner.Tokens
 
                 block.Definition += " " + t.Lexeme
