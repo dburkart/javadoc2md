@@ -34,7 +34,11 @@ func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
     }
 
     visitors := []Visitor{
-        &MarkdownVisitor{OutputDirectory: options.OutputDirectory, SkipPrivateDefs: options.SkipPrivateDefs},
+        &MarkdownVisitor{
+            OutputDirectory: options.OutputDirectory,
+            SkipPrivateDefs: options.SkipPrivateDefs,
+            Symbols: symbolVisitor.Symbols,
+        },
     }
 
     for _, v := range visitors {
@@ -61,6 +65,8 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
     description = ""
 
     for i, block := range doc.Blocks {
+        // TODO: Eventually this should map to a Symbol type so that we can
+        //       track more about the symbol than just its name.
         if i == 0 {
             v.Symbols[block.Name] = block.Name
         } else {
@@ -75,6 +81,7 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 type MarkdownVisitor struct {
     OutputDirectory string
     SkipPrivateDefs bool
+    Symbols map[string]string
 }
 
 // Given a MixedText token list, return a string with all the parameters
@@ -96,6 +103,15 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText) string {
                 str += "`"
                 str += strings.TrimSpace(tokens[i+1].Lexeme)
                 str += "`"
+                i++
+            }
+
+            if token.Lexeme == "@link" {
+                target := strings.TrimSpace(tokens[i+1].Lexeme)
+                location := m.Symbols[target]
+                // TODO: The name of the link should match a shortened symbol
+                //       name, not the target.
+                str += "[" + target + "](" + location + ")"
                 i++
             }
 
