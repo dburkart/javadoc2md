@@ -11,3 +11,7 @@ kinds of values.
 
 This is a variable
 
+## `static final double PRICE = 432.78` {#PRICE}
+
+This is a constant
+
