@@ -44,6 +44,14 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 
     t := <-scanner.Tokens
 
+    // If we see a package name, save that aside before processing any Javadocs
+    if t.Type == TOK_JAVA_KEYWORD && t.Lexeme == "package" {
+        t = <- scanner.Tokens
+        // TODO: What if it's not an identifier?
+        doc.Package = t.Lexeme
+        t = <- scanner.Tokens
+    }
+
     for {
         t := ParseJavadoc(scanner, doc, t)
 

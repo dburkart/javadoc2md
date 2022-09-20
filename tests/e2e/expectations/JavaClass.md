@@ -1,6 +1,10 @@
 # JavaClass
 
 ```java
+import com.foo.bar.JavaClass
+```
+
+```java
 public class JavaClass
 ```
 

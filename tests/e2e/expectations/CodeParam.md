@@ -1,6 +1,10 @@
 # CodeParam
 
 ```java
+import com.foo.bar.CodeParam
+```
+
+```java
 public class CodeParam
 ```
 

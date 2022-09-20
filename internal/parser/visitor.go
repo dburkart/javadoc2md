@@ -147,11 +147,16 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
             heading = "# "
             sectionName = v.Name
         }
-        
+
         f.WriteString(heading + sectionName + "\n\n")
 
         // Write out the definition separately if this is the first block
         if i == 0 {
+            if doc.Package != "" {
+                f.WriteString("```java\n")
+                f.WriteString("import " + doc.Package + "." + v.Name + "\n```\n\n")
+            }
+
             f.WriteString("```java\n" + v.Definition + "\n```\n\n")
         }
 

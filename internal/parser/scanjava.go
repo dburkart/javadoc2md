@@ -15,7 +15,12 @@ func ScanBegin(scanner *Scanner) ScanFn {
     scanner.SkipWhitespace()
 
     for {
-        // First, check if a JavaDoc is beginning
+        // First, check for a package name
+        if strings.HasPrefix(scanner.InputToEnd(), "package") {
+            return ScanPackageStatement
+        }
+
+        // Next, check if a JavaDoc is beginning
         if strings.HasPrefix(scanner.InputToEnd(), "/**") {
             return ScanJavadocStart
         }
@@ -27,6 +32,28 @@ func ScanBegin(scanner *Scanner) ScanFn {
             scanner.Emit(TOK_EOF)
         }
     }
+}
+
+func ScanPackageStatement(scanner *Scanner) ScanFn {
+    scanner.Pos += len("package")
+    scanner.Emit(TOK_JAVA_KEYWORD)
+    return ScanPackageName
+}
+
+func ScanPackageName(scanner *Scanner) ScanFn {
+    scanner.SkipWhitespace()
+    for {
+        ch := scanner.Peek()
+
+        if (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+           (ch >= '0' && ch <= '9') || ch == '.' || ch == '_' {
+            scanner.Inc()
+        } else {
+            scanner.Emit(TOK_JAVA_IDENTIFIER)
+            break
+        }
+    }
+    return ScanBegin
 }
 
 func ScanJavadocStart(scanner *Scanner) ScanFn {

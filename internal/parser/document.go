@@ -11,6 +11,7 @@ import "fmt"
 // The Document struct represents a single "document" emitted by the transpiler.
 type Document struct {
     Address string
+    Package string
     Blocks []Block
 }
 

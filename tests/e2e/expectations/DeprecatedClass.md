@@ -1,6 +1,10 @@
 # DeprecatedClass
 
 ```java
+import com.foo.bar.DeprecatedClass
+```
+
+```java
 public class DeprecatedClass
 ```
 
