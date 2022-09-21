@@ -1,7 +1,7 @@
 package logger
 
 import (
-    "fmt"
+	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -10,70 +10,70 @@ import (
 type LogLevel int
 
 const (
-    LOG_LEVEL_DEBUG LogLevel = iota
-    LOG_LEVEL_INFO
-    LOG_LEVEL_WARN
-    LOG_LEVEL_ERROR
+	LOG_LEVEL_DEBUG LogLevel = iota
+	LOG_LEVEL_INFO
+	LOG_LEVEL_WARN
+	LOG_LEVEL_ERROR
 )
 
 type Logger struct {
-    level LogLevel
+	level LogLevel
 }
 
 func LevelForString(s string) LogLevel {
-    switch (strings.ToLower(s)) {
-        case "debug":
-            return LOG_LEVEL_DEBUG
-        case "info":
-            return LOG_LEVEL_INFO
-        case "warn":
-            return LOG_LEVEL_WARN
-        case "error":
-            return LOG_LEVEL_ERROR
-    }
-    return LOG_LEVEL_INFO
+	switch strings.ToLower(s) {
+	case "debug":
+		return LOG_LEVEL_DEBUG
+	case "info":
+		return LOG_LEVEL_INFO
+	case "warn":
+		return LOG_LEVEL_WARN
+	case "error":
+		return LOG_LEVEL_ERROR
+	}
+	return LOG_LEVEL_INFO
 }
 
 var once sync.Once
 var logger *Logger
 
 func Initialize() {
-    levelString, ok := os.LookupEnv("LOG_LEVEL")
+	levelString, ok := os.LookupEnv("LOG_LEVEL")
 
-    if !ok {
-        levelString = "info"
-    }
+	if !ok {
+		levelString = "info"
+	}
 
-    level := LevelForString(levelString)
+	level := LevelForString(levelString)
 
-    if logger == nil {
-        once.Do(
-            func() {
-                logger = &Logger{level: level}
-            })
-    }
+	if logger == nil {
+		once.Do(
+			func() {
+				logger = &Logger{level: level}
+			})
+	}
 }
 
 func Debug(s string) {
-    if logger.level <= LOG_LEVEL_DEBUG {
-        fmt.Println(s)
-    }
+	if logger.level <= LOG_LEVEL_DEBUG {
+		fmt.Println(s)
+	}
 }
 
 func Info(s string) {
-    if logger.level <= LOG_LEVEL_INFO {
-        fmt.Println(s)
-    }
+	if logger.level <= LOG_LEVEL_INFO {
+		fmt.Println(s)
+	}
 }
 
 func Warn(s string) {
-    if logger.level <= LOG_LEVEL_WARN {
-        fmt.Println(s)
-    }
+	if logger.level <= LOG_LEVEL_WARN {
+		fmt.Println(s)
+	}
 }
 
 func Error(s string) {
-    if logger.level <= LOG_LEVEL_ERROR {
-        fmt.Println(s)
-    }
+	if logger.level <= LOG_LEVEL_ERROR {
+		fmt.Println(s)
+	}
 }

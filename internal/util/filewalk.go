@@ -14,11 +14,11 @@ import (
 )
 
 type SearchContext struct {
-	Root string
+	Root  string
 	Files chan string
 }
 
-func (ctx *SearchContext)discover(directory string) {
+func (ctx *SearchContext) discover(directory string) {
 	files, err := ioutil.ReadDir(directory)
 
 	if err != nil {
@@ -41,7 +41,7 @@ func (ctx *SearchContext)discover(directory string) {
 
 func FileSearch(root string) *SearchContext {
 	s := &SearchContext{
-		Root: root,
+		Root:  root,
 		Files: make(chan string, 3),
 	}
 

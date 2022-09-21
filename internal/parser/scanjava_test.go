@@ -9,97 +9,97 @@ package parser
 import "testing"
 
 func SetupWithState(input string, state ScanFn) *Scanner {
-    s := &Scanner{
-        Name: "Test",
-        Input: input,
-        State: state,
-        Tokens: make(chan Token, 3),
-    }
+	s := &Scanner{
+		Name:   "Test",
+		Input:  input,
+		State:  state,
+		Tokens: make(chan Token, 3),
+	}
 
-    return s
+	return s
 }
 
 func TestScanJavadocStart(t *testing.T) {
-    input := `/**
+	input := `/**
     * Test`
 
-    s := SetupWithState(input, ScanJavadocStart)
+	s := SetupWithState(input, ScanJavadocStart)
 
-    s.State(s)
-    token := <- s.Tokens
+	s.State(s)
+	token := <-s.Tokens
 
-    if token.Type != TOK_JDOC_START {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_START)
-    }
+	if token.Type != TOK_JDOC_START {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_START)
+	}
 }
 
 func TestScanJavadocEnd(t *testing.T) {
-    input := "*/"
+	input := "*/"
 
-    s := SetupWithState(input, ScanJavadocEnd)
+	s := SetupWithState(input, ScanJavadocEnd)
 
-    s.State(s)
-    token := <- s.Tokens
+	s.State(s)
+	token := <-s.Tokens
 
-    if token.Type != TOK_JDOC_END {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_END)
-    }
+	if token.Type != TOK_JDOC_END {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_END)
+	}
 }
 
 func TestScanJavadocLine(t *testing.T) {
-    input := `This is a line assumed to be in a Javadoc
+	input := `This is a line assumed to be in a Javadoc
     * This is the next line`
 
-    s := SetupWithState(input, ScanJavadocLine)
+	s := SetupWithState(input, ScanJavadocLine)
 
-    s.State(s)
-    token := <- s.Tokens
+	s.State(s)
+	token := <-s.Tokens
 
-    if token.Type != TOK_JDOC_LINE {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_LINE)
-    }
+	if token.Type != TOK_JDOC_LINE {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_LINE)
+	}
 
-    if token.Lexeme != "This is a line assumed to be in a Javadoc" {
-        t.Errorf("got %q, wanted 'This is a line assumed to be in a Javadoc'", token.Lexeme)
-    }
+	if token.Lexeme != "This is a line assumed to be in a Javadoc" {
+		t.Errorf("got %q, wanted 'This is a line assumed to be in a Javadoc'", token.Lexeme)
+	}
 }
 
 func TestScanJavadocTag(t *testing.T) {
-    s := SetupWithState("@tag and other stuff", ScanJavadocTag)
+	s := SetupWithState("@tag and other stuff", ScanJavadocTag)
 
-    s.State(s)
-    token := <- s.Tokens
+	s.State(s)
+	token := <-s.Tokens
 
-    if token.Type != TOK_JDOC_TAG {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_TAG)
-    }
+	if token.Type != TOK_JDOC_TAG {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_TAG)
+	}
 
-    if token.Lexeme != "@tag" {
-        t.Errorf("got %q, wanted @tag", token.Lexeme)
-    }
+	if token.Lexeme != "@tag" {
+		t.Errorf("got %q, wanted @tag", token.Lexeme)
+	}
 }
 
 func TestScanJavadocSingleLineComment(t *testing.T) {
-    s := SetupWithState("/** Read data from underlyingInputStream to readAheadBuffer asynchronously. */", ScanJavadocStart)
+	s := SetupWithState("/** Read data from underlyingInputStream to readAheadBuffer asynchronously. */", ScanJavadocStart)
 
-    s.State = s.State(s)
-    token := <- s.Tokens
+	s.State = s.State(s)
+	token := <-s.Tokens
 
-    if token.Type != TOK_JDOC_START {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_START)
-    }
+	if token.Type != TOK_JDOC_START {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_START)
+	}
 
-    s.State = s.State(s)
-    s.State = s.State(s)
-    token = <- s.Tokens
+	s.State = s.State(s)
+	s.State = s.State(s)
+	token = <-s.Tokens
 
-    if token.Type != TOK_JDOC_LINE {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_LINE)
-    }
+	if token.Type != TOK_JDOC_LINE {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_LINE)
+	}
 
-    s.State = s.State(s)
-    token = <- s.Tokens
-    if token.Type != TOK_JDOC_END {
-        t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_END)
-    }
+	s.State = s.State(s)
+	token = <-s.Tokens
+	if token.Type != TOK_JDOC_END {
+		t.Errorf("got %q, wanted %q", token.Type, TOK_JDOC_END)
+	}
 }

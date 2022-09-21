@@ -10,31 +10,31 @@ import "fmt"
 
 // The Document struct represents a single "document" emitted by the transpiler.
 type Document struct {
-    Address string
-    Package string
-    Blocks []Block
+	Address string
+	Package string
+	Blocks  []Block
 }
 
 func (document *Document) AddBlock(block Block) {
-    document.Blocks = append(document.Blocks, block)
+	document.Blocks = append(document.Blocks, block)
 }
 
 func (document *Document) Printdbg() {
-    fmt.Println("Document: ", document.Address)
-    for _, v := range document.Blocks {
-        v.Printdbg()
-    }
+	fmt.Println("Document: ", document.Address)
+	for _, v := range document.Blocks {
+		v.Printdbg()
+	}
 }
 
 type BlockType int
 
 const (
-    BLOCK_INVALID BlockType = iota
-    BLOCK_CLASS
-    BLOCK_INTERFACE
-    BLOCK_ENUM
-    BLOCK_METHOD
-    BLOCK_VARIABLE
+	BLOCK_INVALID BlockType = iota
+	BLOCK_CLASS
+	BLOCK_INTERFACE
+	BLOCK_ENUM
+	BLOCK_METHOD
+	BLOCK_VARIABLE
 )
 
 // Really, we should be building an AST since Javadoc can have parameters
@@ -43,39 +43,39 @@ type MixedText []Token
 
 // A single Javadoc "block", whether for a class or a function
 type Block struct {
-    Doc *Document
-    Name string
-    Type BlockType
-    Text MixedText
-    Definition string
-    Tags map[string]MixedText
-    Params map[string]MixedText
+	Doc        *Document
+	Name       string
+	Type       BlockType
+	Text       MixedText
+	Definition string
+	Tags       map[string]MixedText
+	Params     map[string]MixedText
 
-    Attributes map[string]string
+	Attributes map[string]string
 }
 
 func (block *Block) Printdbg() {
-    fmt.Println("Block: ", block.Name)
+	fmt.Println("Block: ", block.Name)
 }
 
 func MakeBlock() *Block {
-    b := &Block{
-        Name: "",
-        Text: []Token{},
-        Definition: "",
-        Tags: make(map[string]MixedText),
-        Params: make(map[string]MixedText),
-        Attributes: make(map[string]string),
-    }
+	b := &Block{
+		Name:       "",
+		Text:       []Token{},
+		Definition: "",
+		Tags:       make(map[string]MixedText),
+		Params:     make(map[string]MixedText),
+		Attributes: make(map[string]string),
+	}
 
-    return b
+	return b
 }
 
 func MakeDocument(address string) *Document {
-    d := &Document{
-        Address: address,
-        Blocks: []Block{},
-    }
+	d := &Document{
+		Address: address,
+		Blocks:  []Block{},
+	}
 
-    return d
+	return d
 }
