@@ -46,13 +46,19 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 
     // If we see a package name, save that aside before processing any Javadocs
     if t.Type == TOK_JAVA_KEYWORD && t.Lexeme == "package" {
-        t = <- scanner.Tokens
+        t = <-scanner.Tokens
         // TODO: What if it's not an identifier?
         doc.Package = t.Lexeme
-        t = <- scanner.Tokens
+        t = <-scanner.Tokens
     }
 
     for {
+        // Skip anything which isn't the start of javadoc comment
+        if t.Type != TOK_JDOC_START {
+            t = <-scanner.Tokens
+            continue
+        }
+
         t := ParseJavadoc(scanner, doc, t)
 
         if t.Type == TOK_EOF {
@@ -111,7 +117,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
             } else {
                 block.Tags[tagKey] = append(block.Tags[tagKey], val)
             }
-            val = <- scanner.Tokens
+            val = <-scanner.Tokens
         }
 
         if t.Type != TOK_JDOC_TAG {
