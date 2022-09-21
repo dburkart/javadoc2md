@@ -163,11 +163,11 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 
 			switch t.Lexeme {
 			case "class", "@class":
-				block.Type = BLOCK_CLASS
+				block.Type = SYM_TYPE_CLASS
 			case "interface", "@interface":
-				block.Type = BLOCK_INTERFACE
+				block.Type = SYM_TYPE_INTERFACE
 			case "enum":
-				block.Type = BLOCK_ENUM
+				block.Type = SYM_TYPE_ENUM
 			}
 
 			if t.Lexeme == "class" || t.Lexeme == "interface" ||

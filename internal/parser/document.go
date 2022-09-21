@@ -28,15 +28,6 @@ func (document *Document) Printdbg() {
 
 type BlockType int
 
-const (
-	BLOCK_INVALID BlockType = iota
-	BLOCK_CLASS
-	BLOCK_INTERFACE
-	BLOCK_ENUM
-	BLOCK_METHOD
-	BLOCK_VARIABLE
-)
-
 // Really, we should be building an AST since Javadoc can have parameters
 // virtually anywhere, but storing token lists in Blocks is simpler for now.
 type MixedText []Token
@@ -45,7 +36,7 @@ type MixedText []Token
 type Block struct {
 	Doc        *Document
 	Name       string
-	Type       BlockType
+	Type       SymbolType
 	Text       MixedText
 	Definition string
 	Tags       map[string]MixedText
