@@ -22,7 +22,7 @@ func VisitDocuments(options *VisitorConfigOptions, docs chan *Document) {
 
 	// The symbol visitor is special in that we want to visit _every_ document
 	// with this visitor before proceeding
-	symbolVisitor := SymbolVisitor{Symbols: make(map[string]string)}
+	symbolVisitor := SymbolVisitor{Symbols: make(map[string]Symbol)}
 	for {
 		doc, ok := <-docs
 		if !ok {
@@ -57,7 +57,7 @@ type Visitor interface {
 }
 
 type SymbolVisitor struct {
-	Symbols map[string]string
+	Symbols map[string]Symbol
 }
 
 func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
@@ -65,13 +65,14 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 	description = ""
 
 	for i, block := range doc.Blocks {
-		// TODO: Eventually this should map to a Symbol type so that we can
-		//       track more about the symbol than just its name.
+		symbol := Symbol{Type: block.Type, Package: doc.Package, Name: block.Name}
 		if i == 0 {
-			v.Symbols[block.Name] = block.Name
+			symbol.Location = block.Name
+			v.Symbols[block.Name] = symbol
 		} else {
 			symbolName := doc.Blocks[0].Name + "#" + block.Name
-			v.Symbols[symbolName] = symbolName
+			symbol.Location = symbolName
+			v.Symbols[symbolName] = symbol
 		}
 	}
 
@@ -81,7 +82,7 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 type MarkdownVisitor struct {
 	OutputDirectory string
 	SkipPrivateDefs bool
-	Symbols         map[string]string
+	Symbols         map[string]Symbol
 }
 
 // Given a MixedText token list, return a string with all the parameters
@@ -108,10 +109,10 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText) string {
 
 			if token.Lexeme == "@link" {
 				target := strings.TrimSpace(tokens[i+1].Lexeme)
-				location := m.Symbols[target]
+				symbol := m.Symbols[target]
 				// TODO: The name of the link should match a shortened symbol
 				//       name, not the target.
-				str += "[" + target + "](" + location + ")"
+				str += "[" + target + "](" + symbol.Location + ")"
 				i++
 			}
 
