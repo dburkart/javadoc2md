@@ -49,6 +49,7 @@ func ScanBegin(scanner *Scanner) ScanFn {
 
 		if ch == EOF {
 			scanner.Emit(TOK_EOF)
+			return nil
 		}
 	}
 }

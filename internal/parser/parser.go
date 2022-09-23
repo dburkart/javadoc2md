@@ -53,17 +53,17 @@ func ParseDocument(scanner *Scanner, path string) *Document {
 	}
 
 	for {
+		if t.Type == TOK_EOF {
+			break
+		}
+
 		// Skip anything which isn't the start of javadoc comment
 		if t.Type != TOK_JDOC_START {
 			t = <-scanner.Tokens
 			continue
 		}
 
-		t := ParseJavadoc(scanner, doc, t)
-
-		if t.Type == TOK_EOF {
-			break
-		}
+		t = ParseJavadoc(scanner, doc, t)
 	}
 
 	return doc
