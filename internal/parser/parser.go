@@ -142,8 +142,11 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 }
 
 func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
+	var lastToken Token
+
 	t := head
-	lastID := ""
+	lastID, lastLastID := "", ""
+	inArgumentList := false
 	for {
 		if t.Type < TOK_JAVA_KEYWORD {
 			if block.Name == "" {
@@ -183,19 +186,42 @@ func ParseJavaContext(scanner *Scanner, block *Block, head Token) Token {
 		}
 
 		if t.Type == TOK_JAVA_IDENTIFIER {
+			lastLastID = lastID
 			lastID = t.Lexeme
 			goto next
 		}
 
 		if t.Type == TOK_JAVA_PAREN_O && block.Name == "" {
 			block.Name = lastID
+			inArgumentList = true
+			block.Type = SYM_TYPE_METHOD
 		}
 
 		if t.Type == TOK_JAVA_EQUAL && block.Name == "" {
 			block.Name = lastID
+			block.Type = SYM_TYPE_FIELD
+		}
+
+		// Record our arguments
+		if inArgumentList {
+			pair := ArgPair{Type: lastLastID, Name: lastID}
+
+			if t.Type == TOK_JAVA_PAREN_X {
+				inArgumentList = false
+				// There were no arguments in this case
+				if lastToken.Type == TOK_JAVA_PAREN_O {
+					goto next
+				}
+				block.Arguments = append(block.Arguments, pair)
+			}
+
+			if t.Type == TOK_JAVA_COMMA {
+				block.Arguments = append(block.Arguments, pair)
+			}
 		}
 
 	next:
+		lastToken = t
 		t = <-scanner.Tokens
 	}
 }
