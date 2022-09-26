@@ -185,7 +185,6 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 			} else {
 				f.WriteString("\t* `" + value.Name + "` - *Undocumented*\n")
 			}
-
 		}
 
 		if ret, found := v.Tags["@return"]; found {
