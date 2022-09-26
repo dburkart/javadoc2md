@@ -87,7 +87,7 @@ type MarkdownVisitor struct {
 
 // Given a MixedText token list, return a string with all the parameters
 // evaluated.
-func (m *MarkdownVisitor) interpolateText(tokens MixedText) string {
+func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document) string {
 	interpolationArray := make([]string, len(tokens))
 
 	for i := 0; i < len(tokens); i++ {
@@ -109,10 +109,15 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText) string {
 
 			if token.Lexeme == "@link" {
 				target := strings.TrimSpace(tokens[i+1].Lexeme)
+
+				// Handle links local to the current class
+				if target[0] == '#' {
+					target = doc.Blocks[0].Name + target
+				}
+
 				symbol := m.Symbols[target]
-				// TODO: The name of the link should match a shortened symbol
-				//       name, not the target.
-				str += "[" + target + "](" + symbol.Location + ")"
+				// TODO: The name of the link should be a proper definition
+				str += "[" + symbol.Name + "](" + symbol.Location + ")"
 				i++
 			}
 
@@ -164,11 +169,11 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		// Before writing out content, write out any deprecated admonitions
 		if ret, found := v.Tags["@deprecated"]; found {
 			f.WriteString(":::caution Deprecated\n\n")
-			f.WriteString(m.interpolateText(ret) + "\n\n")
+			f.WriteString(m.interpolateText(ret, doc) + "\n\n")
 			f.WriteString(":::\n\n")
 		}
 
-		f.WriteString(m.interpolateText(v.Text))
+		f.WriteString(m.interpolateText(v.Text, doc))
 		f.WriteString("\n\n")
 
 		if len(v.Params) > 0 {
@@ -181,14 +186,14 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		//       captured.
 		for _, value := range v.Arguments {
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("\t* `" + value.Name + "` - " + m.interpolateText(description) + "\n")
+				f.WriteString("\t* `" + value.Name + "` - " + m.interpolateText(description, doc) + "\n")
 			} else {
 				f.WriteString("\t* `" + value.Name + "` - *Undocumented*\n")
 			}
 		}
 
 		if ret, found := v.Tags["@return"]; found {
-			f.WriteString("* **Returns:** " + m.interpolateText(ret) + "\n")
+			f.WriteString("* **Returns:** " + m.interpolateText(ret, doc) + "\n")
 			needs_newline = true
 		}
 
