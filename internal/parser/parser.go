@@ -50,8 +50,13 @@ func splitKey(line string) (head string, remainder string) {
 		}
 	}
 
-	head = line[first:last]
-	remainder = line[last+1:]
+	if last == 0 {
+		head = line[first:]
+		remainder = ""
+	} else {
+		head = line[first:last]
+		remainder = line[last+1:]
+	}
 	return
 }
 
