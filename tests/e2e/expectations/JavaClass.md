@@ -18,6 +18,17 @@ This is a constructor that takes no arguments.
 
 Do something with input, returning the result of something.
 
-* **Parameters:**
+**Parameters:**
+
 	* `input` - The input to do something with.
+
+## `public void testLongDescription(long description)` {#testLongDescription}
+
+This function has a parameter with a long description.
+
+**Parameters:**
+
+	* `description` - This description is super long and detailed, and
+	  tests whether or not markdown is properly indented. Why an
+	  argument should need so much exposition is beyond me.
 

@@ -18,6 +18,7 @@ This is a constructor that takes no arguments.
 
 Do something with input, returning the `result` of something.
 
-* **Parameters:**
+**Parameters:**
+
 	* `input` - The input to do something with.
 

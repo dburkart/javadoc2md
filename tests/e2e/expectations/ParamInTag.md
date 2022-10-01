@@ -10,7 +10,8 @@ This tests whether parameters in the body of tags work properly.
 
 
 
-* **Parameters:**
+**Parameters:**
+
 	* `<T>` - the type of the parameter
 	* `param` - the `parameter`
 

@@ -10,7 +10,9 @@ This class has a javadoc comment in it with a multi-line @return tag.
 
 This doc comment has a multi-line return tag.
 
-* **Parameters:**
+**Parameters:**
+
 	* `foo` - Some number
-* **Returns:** Returns some other number
+**Returns:** Returns some other number
+
 

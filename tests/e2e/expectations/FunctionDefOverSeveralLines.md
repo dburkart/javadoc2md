@@ -11,7 +11,8 @@ Here we test a function which has arguments over several lines
 Imagine this function name and arguments were longer, justifying the
 need to break it up over several lines.
 
-* **Parameters:**
+**Parameters:**
+
 	* `a` - A
 	* `b` - B
 	* `c` - C
