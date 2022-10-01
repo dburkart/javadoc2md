@@ -26,4 +26,11 @@
      public void testLinksDontEatPeriods() {
 
      }
+
+    /**
+     * Link to a class with a package name: {@link com.foo.bar.JavaClass#doSomething}
+     */
+     public void testLinksIncludingPackageNames() {
+
+     }
  }

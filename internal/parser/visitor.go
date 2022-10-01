@@ -69,10 +69,12 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 		if i == 0 {
 			symbol.Location = block.Name
 			v.Symbols[block.Name] = symbol
+			v.Symbols[doc.Package+"."+block.Name] = symbol
 		} else {
 			symbolName := doc.Blocks[0].Name + "#" + block.Name
 			symbol.Location = symbolName
 			v.Symbols[symbolName] = symbol
+			v.Symbols[doc.Package+"."+symbolName] = symbol
 		}
 	}
 

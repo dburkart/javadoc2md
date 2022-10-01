@@ -21,3 +21,7 @@ this class.
 Links should not eat periods: [testLinkToOtherMethodInClass](LinkTest#testLinkToOtherMethodInClass). Did
 the period disappear?
 
+## `public void testLinksIncludingPackageNames()` {#testLinksIncludingPackageNames}
+
+Link to a class with a package name: [doSomething](JavaClass#doSomething)
+
