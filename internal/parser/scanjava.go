@@ -139,8 +139,6 @@ func ScanJavadocLine(scanner *Scanner) ScanFn {
 
 		scanner.Inc()
 	}
-
-	return nil
 }
 
 func ScanJavadocTag(scanner *Scanner) ScanFn {
@@ -173,8 +171,8 @@ func ScanJavadocParam(scanner *Scanner) ScanFn {
 				scanner.Emit(TOK_JDOC_LINE)
 			}
 
-			scanner.Pos += 2
-			scanner.Start += 2
+			scanner.Inc()
+			scanner.Start += 1
 			return ScanJavadocLine
 		}
 

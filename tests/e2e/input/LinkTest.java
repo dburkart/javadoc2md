@@ -18,4 +18,12 @@
     public void testLinkToOtherMethodInClass() {
 
     }
+
+    /**
+     * Links should not eat periods: {@link #testLinkToOtherMethodInClass}. Did
+     * the period disappear?
+     */
+     public void testLinksDontEatPeriods() {
+
+     }
  }

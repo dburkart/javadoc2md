@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/dburkart/javadoc2md/internal/logger"
 )
@@ -27,6 +28,31 @@ func FormatDefinition(def string) string {
 	m := regexp.MustCompile(`(.*)(,)$`)
 
 	return m.Copy().ReplaceAllString(def, "$1")
+}
+
+// Given a line, splitKey pulls off the first word, and returns it
+// along with the unmodified remainder of the line
+func splitKey(line string) (head string, remainder string) {
+	first, last, inHead := 0, 0, false
+	for index, character := range line {
+		if !inHead {
+			if unicode.IsSpace(character) {
+				continue
+			}
+
+			first = index
+			inHead = true
+		}
+
+		if unicode.IsSpace(character) {
+			last = index
+			break
+		}
+	}
+
+	head = line[first:last]
+	remainder = line[last+1:]
+	return
 }
 
 func ParseDocument(scanner *Scanner, path string) *Document {
@@ -99,9 +125,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		tagKey := t.Lexeme
 
 		if t.Lexeme == "@param" {
-			fields := strings.Fields(val.Lexeme)
-			tagKey = fields[0]
-			val.Lexeme = strings.Join(fields[1:], " ")
+			tagKey, val.Lexeme = splitKey(val.Lexeme)
 		}
 
 		// Tags can have multiple lines as their values, so we need to

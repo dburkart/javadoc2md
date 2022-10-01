@@ -79,6 +79,8 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 	return
 }
 
+// The MarkdownVisitor is responsible for emitting a markdown document for
+// each Document.
 type MarkdownVisitor struct {
 	OutputDirectory string
 	SkipPrivateDefs bool
@@ -97,7 +99,7 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document) strin
 		case TOK_JDOC_NL:
 			interpolationArray[i] = "\n"
 		case TOK_JDOC_LINE:
-			interpolationArray[i] = strings.TrimSpace(token.Lexeme) + " "
+			interpolationArray[i] = token.Lexeme
 		case TOK_JDOC_PARAM:
 			str := ""
 			if token.Lexeme == "@code" {
@@ -121,7 +123,7 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document) strin
 				i++
 			}
 
-			interpolationArray[i] = str + " "
+			interpolationArray[i] = str
 		}
 	}
 
