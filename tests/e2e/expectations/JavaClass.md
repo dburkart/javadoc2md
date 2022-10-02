@@ -4,17 +4,21 @@
 import com.foo.bar.JavaClass
 ```
 
+## Definition
+
 ```java
 public class JavaClass
 ```
 
+## Overview
+
 Class for doing Java things.
 
-## `public JavaClass()` {#JavaClass}
+### `public JavaClass()` {#JavaClass}
 
 This is a constructor that takes no arguments.
 
-## `public long doSomething(long input)` {#doSomething}
+### `public long doSomething(long input)` {#doSomething}
 
 Do something with input, returning the result of something.
 
@@ -22,7 +26,7 @@ Do something with input, returning the result of something.
 
 	* `input` - The input to do something with.
 
-## `public void testLongDescription(long description)` {#testLongDescription}
+### `public void testLongDescription(long description)` {#testLongDescription}
 
 This function has a parameter with a long description.
 

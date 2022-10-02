@@ -1,20 +1,24 @@
 # Enum
 
+## Definition
+
 ```java
 public enum Enum
 ```
 
+## Overview
 
 
-## `SUCCESS` {#SUCCESS}
+
+### `SUCCESS` {#SUCCESS}
 
 Indicates success in all things
 
-## `FAILURE` {#FAILURE}
+### `FAILURE` {#FAILURE}
 
 Failure is okay sometimes too
 
-## `UNDEFINED` {#UNDEFINED}
+### `UNDEFINED` {#UNDEFINED}
 
 What happened? We don't know.
 

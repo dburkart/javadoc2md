@@ -150,7 +150,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 	defer f.Close()
 
 	for i, v := range doc.Blocks {
-		heading := "## "
+		heading := "### "
 		sectionName := "`" + v.Definition + "` {#" + v.Name + "}"
 
 		if i == 0 {
@@ -167,7 +167,10 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 				f.WriteString("import " + doc.Package + "." + v.Name + "\n```\n\n")
 			}
 
+			f.WriteString("## Definition\n\n")
 			f.WriteString("```java\n" + v.Definition + "\n```\n\n")
+
+			f.WriteString("## Overview\n\n")
 		}
 
 		// Before writing out content, write out any deprecated admonitions
@@ -180,7 +183,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		f.WriteString(m.interpolateText(v.Text, doc, ""))
 		f.WriteString("\n\n")
 
-		if len(v.Params) > 0 {
+		if len(v.Arguments) > 0 {
 			f.WriteString("**Parameters:**" + "\n\n")
 			needs_newline = true
 		}

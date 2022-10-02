@@ -1,16 +1,20 @@
 # ClassWithDocumentedField
 
+## Definition
+
 ```java
 public class ClassWithDocumentedField
 ```
 
+## Overview
+
 This is a class that has a field which is documented.
 
-## `protected final SomeObjectType field` {#field}
+### `protected final SomeObjectType field` {#field}
 
 This field is used to test whether we can understand fields or not
 
-## `protected final String fieldWithInitialValue = "value"` {#fieldWithInitialValue}
+### `protected final String fieldWithInitialValue = "value"` {#fieldWithInitialValue}
 
 This field is initialized to some value
 
