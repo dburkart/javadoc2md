@@ -91,6 +91,10 @@ func ScanJavadocEnd(scanner *Scanner) ScanFn {
 func ScanJavadoc(scanner *Scanner) ScanFn {
 	scanner.SkipLinearWhitespace()
 
+	if strings.HasPrefix(scanner.InputToEnd(), "<") {
+		return ScanJSXTag
+	}
+
 	if strings.HasPrefix(scanner.InputToEnd(), "@") {
 		return ScanJavadocTag
 	}
@@ -100,6 +104,30 @@ func ScanJavadoc(scanner *Scanner) ScanFn {
 	}
 
 	return ScanJavadocLine
+}
+
+func ScanJSXTag(scanner *Scanner) ScanFn {
+	position := scanner.Pos
+	closeTag := scanner.Peek() == '/'
+
+	// Iterate over runes until we find a matching '>'
+	for {
+		c := scanner.Next()
+
+		if c == '\n' {
+			scanner.Pos = position + 1
+			return ScanJavadoc
+		}
+
+		if c == '>' {
+			if closeTag {
+				scanner.Emit(TOK_JSX_X)
+			} else {
+				scanner.Emit(TOK_JSX_O)
+			}
+			return ScanJavadoc
+		}
+	}
 }
 
 func ScanJavadocLine(scanner *Scanner) ScanFn {

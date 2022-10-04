@@ -100,8 +100,6 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowI
 		switch token.Type {
 		case TOK_JDOC_NL:
 			interpolationArray[i] = "\n" + flowIndent
-		case TOK_JDOC_LINE:
-			interpolationArray[i] = token.Lexeme
 		case TOK_JDOC_PARAM:
 			str := ""
 			if token.Lexeme == "@code" {
@@ -130,6 +128,8 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowI
 			}
 
 			interpolationArray[i] = str
+		default:
+			interpolationArray[i] = token.Lexeme
 		}
 	}
 

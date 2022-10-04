@@ -113,7 +113,8 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 	for {
 		t = <-scanner.Tokens
 
-		if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL || t.Type == TOK_JDOC_PARAM {
+		if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL || t.Type == TOK_JDOC_PARAM ||
+			t.Type == TOK_JSX_O || t.Type == TOK_JSX_X {
 			block.Text = append(block.Text, t)
 		} else {
 			break

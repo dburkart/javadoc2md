@@ -22,6 +22,10 @@ const (
 	TOK_JDOC_NL    // Newlines are significant inside JavaDocs
 	TOK_JDOC_LINE  // everything else
 
+	// JSX-related tags
+	TOK_JSX_O // <...>
+	TOK_JSX_X // </..>
+
 	// This content is java-related
 	TOK_JAVA_KEYWORD
 	TOK_JAVA_PAREN_O
