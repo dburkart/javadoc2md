@@ -120,8 +120,12 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowI
 				}
 
 				symbol := m.Symbols[target]
-				// TODO: The name of the link should be a proper definition
-				str += "[" + symbol.Name + "](" + symbol.Location + ")"
+				if symbol.Type == SYM_TYPE_INVALID {
+					str = "*" + target + "*"
+				} else {
+					// TODO: The name of the link should be a proper definition
+					str += "[" + symbol.Name + "](" + symbol.Location + ")"
+				}
 				i++
 			}
 
@@ -193,9 +197,9 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		//       captured.
 		for _, value := range v.Arguments {
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("\t* `" + value.Name + "` - " + m.interpolateText(description, doc, "\t  ") + "\n")
+				f.WriteString("* `" + value.Name + "` - " + m.interpolateText(description, doc, "\t  ") + "\n")
 			} else {
-				f.WriteString("\t* `" + value.Name + "` - *Undocumented*\n")
+				f.WriteString("* `" + value.Name + "` - *Undocumented*\n")
 			}
 		}
 
