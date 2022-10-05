@@ -17,7 +17,7 @@ need to break it up over several lines.
 
 **Parameters:**
 
-	* `a` - A
-	* `b` - B
-	* `c` - C
+* `a` - A
+* `b` - B
+* `c` - C
 

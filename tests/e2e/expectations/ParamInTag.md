@@ -16,6 +16,6 @@ This tests whether parameters in the body of tags work properly.
 
 **Parameters:**
 
-	* `<T>` - the type of the parameter
-	* `param` - the `parameter`
+* `<T>` - the type of the parameter
+* `param` - the `parameter`
 

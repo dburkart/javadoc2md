@@ -16,7 +16,7 @@ This doc comment has a multi-line return tag.
 
 **Parameters:**
 
-	* `foo` - Some number
+* `foo` - Some number
 **Returns:** Returns some other number
 
 
