@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 )
 
 type VisitorConfigOptions struct {
@@ -89,10 +90,89 @@ type MarkdownVisitor struct {
 	Symbols         map[string]Symbol
 }
 
+type jsxTag struct {
+	index int
+	tag   string
+}
+
+func (j *jsxTag) tagType() string {
+	start, end := 1, 0
+
+	for i, value := range j.tag {
+		if unicode.IsSpace(value) {
+			end = i - 1
+			break
+		}
+
+		if value == '/' && i == len(j.tag)-1 {
+			end = i - 1
+			break
+		} else if value == '/' {
+			start = i + 1
+		}
+
+		if value == '>' {
+			end = i
+			break
+		}
+	}
+
+	return j.tag[start:end]
+}
+
+func (j *jsxTag) close() string {
+	isClosed := false
+	for i, value := range j.tag {
+		if value == '>' && j.tag[i-1] == '/' {
+			isClosed = true
+		}
+	}
+
+	if !isClosed {
+		j.tag = j.tag[:len(j.tag)-1] + "/>"
+	}
+
+	return j.tag
+}
+
+type stack []jsxTag
+
+func (s *stack) Empty() bool {
+	return len(*s) == 0
+}
+func (s *stack) Push(j jsxTag) {
+	*s = append(*s, j)
+}
+
+func (s *stack) Pop() (j jsxTag, empty bool) {
+	if s.Empty() {
+		j = jsxTag{}
+		empty = true
+	} else {
+		i := len(*s) - 1
+		j = (*s)[i]
+		*s = (*s)[:i]
+		empty = false
+	}
+	return
+}
+
+func (s *stack) Peek() (j jsxTag, empty bool) {
+	if s.Empty() {
+		j = jsxTag{}
+		empty = true
+	} else {
+		j = (*s)[len(*s)-1]
+		empty = false
+	}
+	return
+}
+
 // Given a MixedText token list, return a string with all the parameters
 // evaluated.
-func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowIndent string) string {
+func interpolateText(tokens MixedText, doc *Document, symbols SymbolMap, flowIndent string) string {
 	interpolationArray := make([]string, len(tokens))
+	jsxStack := stack{}
 
 	for i := 0; i < len(tokens); i++ {
 		token := tokens[i]
@@ -117,7 +197,7 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowI
 					target = doc.Blocks[0].Name + target
 				}
 
-				symbol := m.Symbols[target]
+				symbol := symbols[target]
 				if symbol.Type == SYM_TYPE_INVALID {
 					str = "*" + target + "*"
 				} else {
@@ -128,9 +208,46 @@ func (m *MarkdownVisitor) interpolateText(tokens MixedText, doc *Document, flowI
 			}
 
 			interpolationArray[i] = str
+		case TOK_JSX_O:
+			jsxStack.Push(jsxTag{i, token.Lexeme})
+			interpolationArray[i] = token.Lexeme
+		case TOK_JSX_X:
+			current := jsxTag{i, token.Lexeme}
+
+			for {
+				next, empty := jsxStack.Pop()
+
+				if empty {
+					break
+				}
+
+				if next.tagType() == current.tagType() {
+					if next.tagType() == "pre" {
+						interpolationArray[next.index] = "```java"
+						token.Lexeme = "```"
+					}
+					break
+				}
+
+				// Close the tag
+				interpolationArray[next.index] = next.close()
+			}
+
+			interpolationArray[i] = token.Lexeme
 		default:
 			interpolationArray[i] = token.Lexeme
 		}
+	}
+
+	// Close anything still on the stack
+	for {
+		next, empty := jsxStack.Pop()
+
+		if empty {
+			break
+		}
+
+		interpolationArray[next.index] = next.close()
 	}
 
 	return strings.TrimSpace(strings.Join(interpolationArray, ""))
@@ -180,11 +297,11 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		// Before writing out content, write out any deprecated admonitions
 		if ret, found := v.Tags["@deprecated"]; found {
 			f.WriteString(":::caution Deprecated\n\n")
-			f.WriteString(m.interpolateText(ret, doc, "") + "\n\n")
+			f.WriteString(interpolateText(ret, doc, m.Symbols, "") + "\n\n")
 			f.WriteString(":::\n\n")
 		}
 
-		f.WriteString(m.interpolateText(v.Text, doc, ""))
+		f.WriteString(interpolateText(v.Text, doc, m.Symbols, ""))
 		f.WriteString("\n\n")
 
 		if len(v.Arguments) > 0 {
@@ -197,14 +314,14 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		//       captured.
 		for _, value := range v.Arguments {
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("* `" + value.Name + "` - " + m.interpolateText(description, doc, "\t  ") + "\n")
+				f.WriteString("* `" + value.Name + "` - " + interpolateText(description, doc, m.Symbols, "\t  ") + "\n")
 			} else {
 				f.WriteString("* `" + value.Name + "` - *Undocumented*\n")
 			}
 		}
 
 		if ret, found := v.Tags["@return"]; found {
-			f.WriteString("**Returns:** " + m.interpolateText(ret, doc, "") + "\n\n")
+			f.WriteString("**Returns:** " + interpolateText(ret, doc, m.Symbols, "") + "\n\n")
 			needs_newline = true
 		}
 

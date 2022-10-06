@@ -24,3 +24,5 @@ type Symbol struct {
 	Parent   string // Fields, methods, inner classes
 	Location string
 }
+
+type SymbolMap map[string]Symbol

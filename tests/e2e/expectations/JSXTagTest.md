@@ -25,3 +25,21 @@ This test ensures that we don't close tags which are actually
 closed already.
 </p>
 
+### `public void testItalics()` {#testItalics}
+
+This <i>word</i>is italicized
+<i>This</i>one is <i>too</i>
+
+### `public void testATag()` {#testATag}
+
+<a href="https://tools.ietf.org/html/rfc7231#section-4.3"/>RFC-7231</a>
+
+### `public void testPreTag()` {#testPreTag}
+
+This tests that the pre tag gets converted properly
+
+```java
+int foo = bar;
+foo * 2;
+```
+

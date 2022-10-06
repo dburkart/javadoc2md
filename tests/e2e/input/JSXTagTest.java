@@ -2,6 +2,7 @@
  * This test ensures that JSX tags that are not closed are closed after
  * transpilation. JSX does not have the same facilities for closing tags
  * as HTML does.
+ *
  */
 public class JSXTagTest {
 
@@ -21,6 +22,33 @@ public class JSXTagTest {
      * </p>
      */
     public void testTagsThatAreClosedOnSeparateLines() {
+
+    }
+
+    /**
+     * This <i>word</i> is italicized
+     * <i>This</i> one is <i>too</i>
+     */
+    public void testItalics() {
+
+    }
+
+    /**
+     * <a href="https://tools.ietf.org/html/rfc7231#section-4.3">RFC-7231</a>
+     */
+    public void testATag() {
+
+    }
+
+    /**
+     * This tests that the pre tag gets converted properly
+     *
+     * <pre>
+     * int foo = bar;
+     * foo * 2;
+     * </pre>
+     */
+    public void testPreTag() {
 
     }
 }
