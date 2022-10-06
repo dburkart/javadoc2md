@@ -9,7 +9,6 @@ package parser
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"unicode"
 )
 
@@ -135,124 +134,6 @@ func (j *jsxTag) close() string {
 	return j.tag
 }
 
-type stack []jsxTag
-
-func (s *stack) Empty() bool {
-	return len(*s) == 0
-}
-func (s *stack) Push(j jsxTag) {
-	*s = append(*s, j)
-}
-
-func (s *stack) Pop() (j jsxTag, empty bool) {
-	if s.Empty() {
-		j = jsxTag{}
-		empty = true
-	} else {
-		i := len(*s) - 1
-		j = (*s)[i]
-		*s = (*s)[:i]
-		empty = false
-	}
-	return
-}
-
-func (s *stack) Peek() (j jsxTag, empty bool) {
-	if s.Empty() {
-		j = jsxTag{}
-		empty = true
-	} else {
-		j = (*s)[len(*s)-1]
-		empty = false
-	}
-	return
-}
-
-// Given a Text token list, return a string with all the parameters
-// evaluated.
-func interpolateText(tokens Text, doc *Document, symbols SymbolMap, flowIndent string) string {
-	interpolationArray := make([]string, len(tokens))
-	jsxStack := stack{}
-
-	for i := 0; i < len(tokens); i++ {
-		token := tokens[i]
-
-		switch token.Type {
-		case TOK_JDOC_NL:
-			interpolationArray[i] = "\n" + flowIndent
-		case TOK_JDOC_PARAM:
-			str := ""
-			if token.Lexeme == "@code" {
-				str += "`"
-				str += strings.TrimSpace(tokens[i+1].Lexeme)
-				str += "`"
-				i++
-			}
-
-			if token.Lexeme == "@link" {
-				target := strings.TrimSpace(tokens[i+1].Lexeme)
-
-				// Handle links local to the current class
-				if target[0] == '#' {
-					target = doc.Blocks[0].Name + target
-				}
-
-				symbol := symbols[target]
-				if symbol.Type == SYM_TYPE_INVALID {
-					str = "*" + target + "*"
-				} else {
-					// TODO: The name of the link should be a proper definition
-					str += "[" + symbol.Name + "](" + symbol.Location + ")"
-				}
-				i++
-			}
-
-			interpolationArray[i] = str
-		case TOK_JSX_O:
-			jsxStack.Push(jsxTag{i, token.Lexeme})
-			interpolationArray[i] = token.Lexeme
-		case TOK_JSX_X:
-			current := jsxTag{i, token.Lexeme}
-
-			for {
-				next, empty := jsxStack.Pop()
-
-				if empty {
-					break
-				}
-
-				if next.tagType() == current.tagType() {
-					if next.tagType() == "pre" {
-						interpolationArray[next.index] = "```java"
-						token.Lexeme = "```"
-					}
-					break
-				}
-
-				// Close the tag
-				interpolationArray[next.index] = next.close()
-			}
-
-			interpolationArray[i] = token.Lexeme
-		default:
-			interpolationArray[i] = token.Lexeme
-		}
-	}
-
-	// Close anything still on the stack
-	for {
-		next, empty := jsxStack.Pop()
-
-		if empty {
-			break
-		}
-
-		interpolationArray[next.index] = next.close()
-	}
-
-	return strings.TrimSpace(strings.Join(interpolationArray, ""))
-}
-
 func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 	err = false
 	description = ""
@@ -297,11 +178,11 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		// Before writing out content, write out any deprecated admonitions
 		if ret, found := v.Tags["@deprecated"]; found {
 			f.WriteString(":::caution Deprecated\n\n")
-			f.WriteString(interpolateText(ret, doc, m.Symbols, "") + "\n\n")
+			f.WriteString(ret.Interpolate(doc, m.Symbols, "") + "\n\n")
 			f.WriteString(":::\n\n")
 		}
 
-		f.WriteString(interpolateText(v.Text, doc, m.Symbols, ""))
+		f.WriteString(v.Text.Interpolate(doc, m.Symbols, ""))
 		f.WriteString("\n\n")
 
 		if len(v.Arguments) > 0 {
@@ -314,14 +195,14 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		//       captured.
 		for _, value := range v.Arguments {
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("* `" + value.Name + "` - " + interpolateText(description, doc, m.Symbols, "\t  ") + "\n")
+				f.WriteString("* `" + value.Name + "` - " + description.Interpolate(doc, m.Symbols, "\t  ") + "\n")
 			} else {
 				f.WriteString("* `" + value.Name + "` - *Undocumented*\n")
 			}
 		}
 
 		if ret, found := v.Tags["@return"]; found {
-			f.WriteString("**Returns:** " + interpolateText(ret, doc, m.Symbols, "") + "\n\n")
+			f.WriteString("**Returns:** " + ret.Interpolate(doc, m.Symbols, "") + "\n\n")
 			needs_newline = true
 		}
 
