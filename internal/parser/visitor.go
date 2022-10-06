@@ -168,9 +168,9 @@ func (s *stack) Peek() (j jsxTag, empty bool) {
 	return
 }
 
-// Given a MixedText token list, return a string with all the parameters
+// Given a Text token list, return a string with all the parameters
 // evaluated.
-func interpolateText(tokens MixedText, doc *Document, symbols SymbolMap, flowIndent string) string {
+func interpolateText(tokens Text, doc *Document, symbols SymbolMap, flowIndent string) string {
 	interpolationArray := make([]string, len(tokens))
 	jsxStack := stack{}
 
