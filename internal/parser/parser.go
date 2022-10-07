@@ -137,7 +137,8 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		// Tags can have multiple lines as their values, so we need to
 		// capture all lines until the next tag / end
 		for {
-			if val.Type != TOK_JDOC_LINE && val.Type != TOK_JDOC_PARAM && val.Type != TOK_JDOC_NL {
+			if val.Type != TOK_JDOC_LINE && val.Type != TOK_JDOC_PARAM && val.Type != TOK_JDOC_NL &&
+				val.Type != TOK_JSX_O && val.Type != TOK_JSX_X {
 				t = val
 				break
 			}
