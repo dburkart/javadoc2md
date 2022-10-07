@@ -119,7 +119,7 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 			}
 
 			if token.Lexeme == "@link" {
-				target := strings.TrimSpace((*t)[i+1].Lexeme)
+				target := strings.ReplaceAll((*t)[i+1].Lexeme, " ", "")
 
 				// Handle links local to the current class
 				if target[0] == '#' {

@@ -74,6 +74,20 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 			symbol.Location = symbolName
 			v.Symbols[symbolName] = symbol
 			v.Symbols[doc.Package+"."+symbolName] = symbol
+
+			// Add normalized names as well
+			symbolName += "("
+			numArgs := len(block.Arguments)
+			// For each argument, add to the symbol name
+			for i, val := range block.Arguments {
+				symbolName += val.Type
+				if i < numArgs-1 {
+					symbolName += ","
+				}
+			}
+			symbolName += ")"
+			v.Symbols[symbolName] = symbol
+			v.Symbols[doc.Package+"."+symbolName] = symbol
 		}
 	}
 

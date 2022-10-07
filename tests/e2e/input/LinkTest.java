@@ -33,4 +33,14 @@
      public void testLinksIncludingPackageNames() {
 
      }
+
+     /**
+      * Link to a class with arguments: {@link JavaClass#doSomething(long)}
+      * Link to a class without arguments: {@link #testLinksDontEatPeriods()}
+      * Link to a class with arguments and package name: {@link com.foo.bar.JavaClass#doSomething(long)}
+      * Link to a class with multiple arguments: {@link FunctionDefOverSeveralLines#thisFunctionIsLongWinded(int, int, int)}
+      */
+      public void testLinksWithArguments() {
+
+      }
  }
