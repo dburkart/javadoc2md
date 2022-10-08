@@ -33,6 +33,6 @@ This function has a parameter with a long description.
 **Parameters:**
 
 * `description` - This description is super long and detailed, and
-	  tests whether or not markdown is properly indented. Why an
-	  argument should need so much exposition is beyond me.
+     tests whether or not markdown is properly indented. Why an
+     argument should need so much exposition is beyond me.
 

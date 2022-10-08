@@ -163,7 +163,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		//       captured.
 		for _, value := range v.Arguments {
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("* `" + value.Name + "` - " + description.Interpolate(doc, m.Symbols, "\t  ") + "\n")
+				f.WriteString("* `" + value.Name + "` - " + description.Interpolate(doc, m.Symbols, "") + "\n")
 			} else {
 				f.WriteString("* `" + value.Name + "` - *Undocumented*\n")
 			}

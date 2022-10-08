@@ -3,7 +3,9 @@
  *
  * <pre>
  * public class Foo extends Bar {
+ *     public static void Foo() {
  *
+ *     }
  * }
  * </pre>
  *

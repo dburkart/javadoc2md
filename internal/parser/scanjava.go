@@ -89,7 +89,7 @@ func ScanJavadocEnd(scanner *Scanner) ScanFn {
 }
 
 func ScanJavadoc(scanner *Scanner) ScanFn {
-	scanner.SkipLinearWhitespace()
+	scanner.SkipJavadocFiller()
 
 	if strings.HasPrefix(scanner.InputToEnd(), "@") {
 		return ScanJavadocTag
