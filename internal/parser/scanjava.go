@@ -209,6 +209,12 @@ removeKey:
 func ScanJavadocParam(scanner *Scanner) ScanFn {
 	// Consume '{'
 	scanner.Inc()
+
+	// The next rune must be an '@' symbol for this to be a valid param
+	if scanner.Peek() != '@' {
+		return ScanJavadocLine
+	}
+
 	scanner.Start = scanner.Pos
 
 	insideParam := false
