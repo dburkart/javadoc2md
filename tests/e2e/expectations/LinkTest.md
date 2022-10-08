@@ -29,3 +29,10 @@ the period disappear?
 
 Link to a class with a package name: [doSomething](JavaClass#doSomething)
 
+### `public void testLinksWithArguments()` {#testLinksWithArguments}
+
+Link to a class with arguments: [doSomething](JavaClass#doSomething)
+Link to a class without arguments: [testLinksDontEatPeriods](LinkTest#testLinksDontEatPeriods)
+Link to a class with arguments and package name: [doSomething](JavaClass#doSomething)
+Link to a class with multiple arguments: [thisFunctionIsLongWinded](FunctionDefOverSeveralLines#thisFunctionIsLongWinded)
+
