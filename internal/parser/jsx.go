@@ -8,21 +8,21 @@ package parser
 
 import "unicode"
 
-type jsxTag struct {
-	index int
-	tag   string
+type JSXTag struct {
+	Index int
+	Tag   string
 }
 
-func (j *jsxTag) tagType() string {
+func (j *JSXTag) Type() string {
 	start, end := 1, 0
 
-	for i, value := range j.tag {
+	for i, value := range j.Tag {
 		if unicode.IsSpace(value) {
 			end = i - 1
 			break
 		}
 
-		if value == '/' && i == len(j.tag)-1 {
+		if value == '/' && i == len(j.Tag)-1 {
 			end = i - 1
 			break
 		} else if value == '/' {
@@ -35,20 +35,20 @@ func (j *jsxTag) tagType() string {
 		}
 	}
 
-	return j.tag[start:end]
+	return j.Tag[start:end]
 }
 
-func (j *jsxTag) close() string {
+func (j *JSXTag) Close() string {
 	isClosed := false
-	for i, value := range j.tag {
-		if value == '>' && j.tag[i-1] == '/' {
+	for i, value := range j.Tag {
+		if value == '>' && j.Tag[i-1] == '/' {
 			isClosed = true
 		}
 	}
 
 	if !isClosed {
-		j.tag = j.tag[:len(j.tag)-1] + "/>"
+		j.Tag = j.Tag[:len(j.Tag)-1] + "/>"
 	}
 
-	return j.tag
+	return j.Tag
 }

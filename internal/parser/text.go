@@ -10,18 +10,18 @@ import (
 	"strings"
 )
 
-type stack []jsxTag
+type stack []JSXTag
 
 func (s *stack) Empty() bool {
 	return len(*s) == 0
 }
-func (s *stack) Push(j jsxTag) {
+func (s *stack) Push(j JSXTag) {
 	*s = append(*s, j)
 }
 
-func (s *stack) Pop() (j jsxTag, empty bool) {
+func (s *stack) Pop() (j JSXTag, empty bool) {
 	if s.Empty() {
-		j = jsxTag{}
+		j = JSXTag{}
 		empty = true
 	} else {
 		i := len(*s) - 1
@@ -32,9 +32,9 @@ func (s *stack) Pop() (j jsxTag, empty bool) {
 	return
 }
 
-func (s *stack) Peek() (j jsxTag, empty bool) {
+func (s *stack) Peek() (j JSXTag, empty bool) {
 	if s.Empty() {
-		j = jsxTag{}
+		j = JSXTag{}
 		empty = true
 	} else {
 		j = (*s)[len(*s)-1]
@@ -93,10 +93,10 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 
 			interpolationArray[i] = str
 		case TOK_JSX_O:
-			jsxStack.Push(jsxTag{i, token.Lexeme})
+			jsxStack.Push(JSXTag{i, token.Lexeme})
 			interpolationArray[i] = token.Lexeme
 		case TOK_JSX_X:
-			current := jsxTag{i, token.Lexeme}
+			current := JSXTag{i, token.Lexeme}
 
 			for {
 				next, empty := jsxStack.Pop()
@@ -105,16 +105,16 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 					break
 				}
 
-				if next.tagType() == current.tagType() {
-					if next.tagType() == "pre" {
-						interpolationArray[next.index] = "```java"
+				if next.Type() == current.Type() {
+					if next.Type() == "pre" {
+						interpolationArray[next.Index] = "```java"
 						token.Lexeme = "```"
 					}
 					break
 				}
 
-				// Close the tag
-				interpolationArray[next.index] = next.close()
+				// Close the Tag
+				interpolationArray[next.Index] = next.Close()
 			}
 
 			interpolationArray[i] = token.Lexeme
@@ -131,7 +131,7 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 			break
 		}
 
-		interpolationArray[next.index] = next.close()
+		interpolationArray[next.Index] = next.Close()
 	}
 
 	return strings.TrimSpace(strings.Join(interpolationArray, ""))

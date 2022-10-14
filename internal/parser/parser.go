@@ -109,7 +109,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 	block := MakeBlock()
 	block.Doc = document
 
-	// Pull off lines until we hit the first tag
+	// Pull off lines until we hit the first Tag
 	for {
 		t = <-scanner.Tokens
 
@@ -121,7 +121,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		}
 	}
 
-	// Add tags to the tag map for the block, until we hit a non-tag
+	// Add tags to the Tag map for the block, until we hit a non-Tag
 	for {
 		if t.Type != TOK_JDOC_TAG {
 			break
@@ -135,7 +135,7 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		}
 
 		// Tags can have multiple lines as their values, so we need to
-		// capture all lines until the next tag / end
+		// capture all lines until the next Tag / end
 		for {
 			if val.Type != TOK_JDOC_LINE && val.Type != TOK_JDOC_PARAM && val.Type != TOK_JDOC_NL &&
 				val.Type != TOK_JSX_O && val.Type != TOK_JSX_X {
