@@ -22,8 +22,8 @@ func (j *JSXTag) Type() string {
 			break
 		}
 
-		if value == '/' && i == len(j.Tag)-1 {
-			end = i - 1
+		if value == '/' && i == len(j.Tag)-2 {
+			end = i
 			break
 		} else if value == '/' {
 			start = i + 1

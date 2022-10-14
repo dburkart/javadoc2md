@@ -21,3 +21,17 @@ func TestTagTypeAHref(t *testing.T) {
 		t.Errorf("got %q, wanted 'a'", tag.Type())
 	}
 }
+
+func TestSelfClosedTag(t *testing.T) {
+	tag := JSXTag{Index: 0, Tag: "<p/>"}
+	if tag.Type() != "p" {
+		t.Errorf("got %q, wanted 'p'", tag.Type())
+	}
+}
+
+func TestClosingTag(t *testing.T) {
+	tag := JSXTag{Index: 0, Tag: "</b>"}
+	if tag.Type() != "b" {
+		t.Errorf("got %q, wanted 'b'", tag.Type())
+	}
+}
