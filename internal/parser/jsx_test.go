@@ -35,3 +35,15 @@ func TestClosingTag(t *testing.T) {
 		t.Errorf("got %q, wanted 'b'", tag.Type())
 	}
 }
+
+func TestAutoCloseTags(t *testing.T) {
+	tag := JSXTag{Index: 0, Tag: "<p>"}
+	if tag.Close() != "<p/>" {
+		t.Errorf("got %q, wanted '<p/>'", tag.Tag)
+	}
+
+	// Test tag which is already closed
+	if tag.Close() != "<p/>" {
+		t.Errorf("got %q, wanted '<p/>'", tag.Tag)
+	}
+}
