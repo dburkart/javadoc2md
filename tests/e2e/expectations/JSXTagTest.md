@@ -32,7 +32,7 @@ This <i>word</i>is italicized
 
 ### `public void testATag()` {#testATag}
 
-<a href="https://tools.ietf.org/html/rfc7231#section-4.3"/>RFC-7231</a>
+<a href="https://tools.ietf.org/html/rfc7231#section-4.3">RFC-7231</a>
 
 ### `public void testPreTag()` {#testPreTag}
 

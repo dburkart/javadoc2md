@@ -18,7 +18,7 @@ func (j *JSXTag) Type() string {
 
 	for i, value := range j.Tag {
 		if unicode.IsSpace(value) {
-			end = i - 1
+			end = i
 			break
 		}
 
