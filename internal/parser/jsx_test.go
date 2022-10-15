@@ -6,7 +6,9 @@
 
 package parser
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestTagTypeSimple(t *testing.T) {
 	tag := JSXTag{Index: 0, Tag: "<b>"}
@@ -45,5 +47,27 @@ func TestAutoCloseTags(t *testing.T) {
 	// Test tag which is already closed
 	if tag.Close() != "<p/>" {
 		t.Errorf("got %q, wanted '<p/>'", tag.Tag)
+	}
+}
+
+func TestSimpleAttribute(t *testing.T) {
+	tag := JSXTag{Index: 0, Tag: "<a href='#'>"}
+	attributes := tag.Attributes()
+
+	if attributes["href"] != "#" {
+		t.Errorf("got attribute '%q', wanted '#'", attributes["href"])
+	}
+}
+
+func TestMultipleAttributes(t *testing.T) {
+	tag := JSXTag{Index: 0, Tag: "<person name='bob' gender='male'>"}
+	attributes := tag.Attributes()
+
+	if attributes["name"] != "bob" {
+		t.Errorf("got attribute '%q' for name, wanted 'bob'", attributes["name"])
+	}
+
+	if attributes["gender"] != "male" {
+		t.Errorf("got attribute '%q' for gender, wanted 'male'", attributes["gender"])
 	}
 }

@@ -38,6 +38,47 @@ func (j *JSXTag) Type() string {
 	return j.Tag[start:end]
 }
 
+func (j *JSXTag) Attributes() map[string]string {
+	attributes := make(map[string]string)
+
+	tagType := j.Type()
+	key := ""
+	value := ""
+	inValue := false
+	quoteChar := '"'
+
+	for i := 0; i < len(j.Tag); i++ {
+		ch := rune(j.Tag[i])
+		if (unicode.IsSpace(ch) || ch == '/' || ch == '>') && !inValue {
+			if key != tagType {
+				attributes[key] = value
+			}
+			key = ""
+			value = ""
+			continue
+		}
+
+		if inValue {
+			if ch == quoteChar {
+				inValue = false
+				continue
+			}
+			value = value + string(ch)
+		} else {
+			if ch == '=' {
+				quoteChar = rune(j.Tag[i+1])
+				i++
+				inValue = true
+				continue
+			}
+
+			key = key + string(ch)
+		}
+	}
+
+	return attributes
+}
+
 func (j *JSXTag) Close() string {
 	isClosed := false
 	for i, value := range j.Tag {
