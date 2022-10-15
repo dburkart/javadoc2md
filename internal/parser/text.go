@@ -110,6 +110,11 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 						interpolationArray[next.Index] = "```java"
 						token.Lexeme = "```"
 					}
+
+					if next.Type() == "a" {
+						interpolationArray[next.Index] = "["
+						token.Lexeme = "](" + next.Attributes()["href"] + ")"
+					}
 					break
 				}
 
