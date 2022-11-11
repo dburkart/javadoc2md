@@ -106,9 +106,15 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 				}
 
 				if next.Type() == current.Type() {
-					if next.Type() == "pre" {
-						interpolationArray[next.Index] = "```java"
-						token.Lexeme = "```"
+					if next.Type() == "pre" || next.Type() == "code" {
+						// If there are multiple lines between our tags, consider it a long form code block
+						if i-next.Index > 2 || strings.IndexRune(interpolationArray[i-1], '\n') != -1 {
+							interpolationArray[next.Index] = "```java"
+							token.Lexeme = "```"
+						} else { // Otherwise it's inline plaintext
+							interpolationArray[next.Index] = "`"
+							token.Lexeme = "`"
+						}
 					}
 
 					if next.Type() == "a" {

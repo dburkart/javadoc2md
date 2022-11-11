@@ -51,4 +51,27 @@ public class JSXTagTest {
     public void testPreTag() {
 
     }
+
+    /**
+     * This tests that the code tag gets converted properly
+     *
+     * <code>
+     * int foo = bar;
+     * foo * 2;
+     * </code>
+     *
+     * <code>
+     * int foo = bar;
+     * </code>
+     */
+    public void testCodeTag() {
+
+    }
+
+    /**
+     * This tests an inline <code>code</code> tag.
+     */
+    public void testInlineCodeTag() {
+
+    }
 }

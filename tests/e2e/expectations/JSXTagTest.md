@@ -27,8 +27,8 @@ closed already.
 
 ### `public void testItalics()` {#testItalics()}
 
-This <i>word</i>is italicized
-<i>This</i>one is <i>too</i>
+This <i>word</i> is italicized
+<i>This</i> one is <i>too</i>
 
 ### `public void testATag()` {#testATag()}
 
@@ -42,4 +42,21 @@ This tests that the pre tag gets converted properly
 int foo = bar;
 foo * 2;
 ```
+
+### `public void testCodeTag()` {#testCodeTag()}
+
+This tests that the code tag gets converted properly
+
+```java
+int foo = bar;
+foo * 2;
+```
+
+```java
+int foo = bar;
+```
+
+### `public void testInlineCodeTag()` {#testInlineCodeTag()}
+
+This tests an inline `code` tag.
 
