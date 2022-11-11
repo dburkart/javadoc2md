@@ -18,11 +18,12 @@ const (
 )
 
 type Symbol struct {
-	Type     SymbolType
-	Name     string // Short name
-	Package  string
-	Parent   string // Fields, methods, inner classes
-	Location string
+	Type          SymbolType
+	Name          string // Short name
+	QualifiedName string
+	Package       string
+	Parent        string // Fields, methods, inner classes
+	Location      string
 }
 
 type SymbolMap map[string]Symbol

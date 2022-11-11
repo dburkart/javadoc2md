@@ -39,8 +39,25 @@
       * Link to a class without arguments: {@link #testLinksDontEatPeriods()}
       * Link to a class with arguments and package name: {@link com.foo.bar.JavaClass#doSomething(long)}
       * Link to a class with multiple arguments: {@link FunctionDefOverSeveralLines#thisFunctionIsLongWinded(int, int, int)}
+      * Link to an overloaded method: {@link #overloadedMethod}
+      * Link to the other overloaded method: {@link #overloadedMethod(int, int)}
       */
       public void testLinksWithArguments() {
 
       }
+
+      /**
+       * This method will be overloaded below.
+       *
+       * @param A this is an integer
+       */
+      public void overloadedMethod(int A) {}
+
+      /**
+       * This method overloads the one above.
+       *
+       * @param A this is an integer
+       * @param B this is also an integer
+       */
+      public void overloadedMethod(int A, int B)
  }

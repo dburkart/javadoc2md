@@ -10,7 +10,7 @@ class JavadocWithNewlineBetweenTags
 
 This class has a javadoc comment in it with a multi-line @return tag.
 
-### `public int methodWithLongReturn(int foo)` {#methodWithLongReturn}
+### `public int methodWithLongReturn(int foo)` {#methodWithLongReturn(int)}
 
 This doc comment has a multi-line return tag.
 

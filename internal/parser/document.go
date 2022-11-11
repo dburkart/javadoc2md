@@ -33,15 +33,16 @@ type ArgPair struct {
 
 // A single Javadoc "block", whether for a class or a function
 type Block struct {
-	Doc        *Document
-	Name       string
-	Type       SymbolType
-	Arguments  []ArgPair
-	Text       Text
-	Definition string
-	Tags       map[string]Text
-	Params     map[string]Text
-	Attributes map[string]string
+	Doc           *Document
+	Name          string
+	QualifiedName string
+	Type          SymbolType
+	Arguments     []ArgPair
+	Text          Text
+	Definition    string
+	Tags          map[string]Text
+	Params        map[string]Text
+	Attributes    map[string]string
 }
 
 func (block *Block) Printdbg() {
@@ -50,13 +51,14 @@ func (block *Block) Printdbg() {
 
 func MakeBlock() *Block {
 	b := &Block{
-		Name:       "",
-		Text:       []Token{},
-		Definition: "",
-		Arguments:  []ArgPair{},
-		Tags:       make(map[string]Text),
-		Params:     make(map[string]Text),
-		Attributes: make(map[string]string),
+		Name:          "",
+		QualifiedName: "",
+		Text:          []Token{},
+		Definition:    "",
+		Arguments:     []ArgPair{},
+		Tags:          make(map[string]Text),
+		Params:        make(map[string]Text),
+		Attributes:    make(map[string]string),
 	}
 
 	return b

@@ -64,28 +64,42 @@ func (v *SymbolVisitor) visit(doc *Document) (err bool, description string) {
 	description = ""
 
 	for i, block := range doc.Blocks {
-		symbol := Symbol{Type: block.Type, Package: doc.Package, Name: block.Name}
+		symbol := Symbol{Type: block.Type, Package: doc.Package, Name: block.Name, QualifiedName: block.Name}
 		if i == 0 {
 			symbol.Location = block.Name
 			v.Symbols[block.Name] = symbol
 			v.Symbols[doc.Package+"."+block.Name] = symbol
 		} else {
-			symbolName := doc.Blocks[0].Name + "#" + block.Name
-			symbol.Location = symbolName
-			v.Symbols[symbolName] = symbol
-			v.Symbols[doc.Package+"."+symbolName] = symbol
-
-			// Add normalized names as well
-			symbolName += "("
-			numArgs := len(block.Arguments)
-			// For each argument, add to the symbol name
-			for i, val := range block.Arguments {
-				symbolName += val.Type
-				if i < numArgs-1 {
-					symbolName += ","
+			// First, put together the symbol's qualified name
+			qualifiedName := block.Name
+			if symbol.Type == SYM_TYPE_METHOD {
+				qualifiedName = block.Name + "("
+				numArgs := len(block.Arguments)
+				// For each argument, add to the symbol name
+				for i, val := range block.Arguments {
+					qualifiedName += val.Type
+					if i < numArgs-1 {
+						qualifiedName += ","
+					}
 				}
+				qualifiedName += ")"
 			}
-			symbolName += ")"
+
+			symbol.QualifiedName = qualifiedName
+			doc.Blocks[i].QualifiedName = qualifiedName
+
+			symbolName := doc.Blocks[0].Name + "#" + block.Name
+			symbol.Location = doc.Blocks[0].Name + "#" + qualifiedName
+
+			// If the vague, argument-less symbol already exists in the map
+			// we want to only insert the exact symbol name below.
+			if _, ok := v.Symbols[symbolName]; !ok {
+				v.Symbols[symbolName] = symbol
+				v.Symbols[doc.Package+"."+symbolName] = symbol
+			}
+
+			// Generate Qualified Name
+			symbolName = doc.Blocks[0].Name + "#" + qualifiedName
 			v.Symbols[symbolName] = symbol
 			v.Symbols[doc.Package+"."+symbolName] = symbol
 		}
@@ -121,7 +135,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 
 	for i, v := range doc.Blocks {
 		heading := "### "
-		sectionName := "`" + v.Definition + "` {#" + v.Name + "}"
+		sectionName := "`" + v.Definition + "` {#" + v.QualifiedName + "}"
 
 		if i == 0 {
 			heading = "# "
