@@ -41,6 +41,8 @@
       * Link to a class with multiple arguments: {@link FunctionDefOverSeveralLines#thisFunctionIsLongWinded(int, int, int)}
       * Link to an overloaded method: {@link #overloadedMethod}
       * Link to the other overloaded method: {@link #overloadedMethod(int, int)}
+      * Link spanning multiple lines: {@link #overloadedMethod(int,
+      * int)}
       */
       public void testLinksWithArguments() {
 
