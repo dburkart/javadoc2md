@@ -10,18 +10,18 @@ import (
 	"strings"
 )
 
-type stack []JSXTag
+type stack []XMLTag
 
 func (s *stack) Empty() bool {
 	return len(*s) == 0
 }
-func (s *stack) Push(j JSXTag) {
+func (s *stack) Push(j XMLTag) {
 	*s = append(*s, j)
 }
 
-func (s *stack) Pop() (j JSXTag, empty bool) {
+func (s *stack) Pop() (j XMLTag, empty bool) {
 	if s.Empty() {
-		j = JSXTag{}
+		j = XMLTag{}
 		empty = true
 	} else {
 		i := len(*s) - 1
@@ -32,9 +32,9 @@ func (s *stack) Pop() (j JSXTag, empty bool) {
 	return
 }
 
-func (s *stack) Peek() (j JSXTag, empty bool) {
+func (s *stack) Peek() (j XMLTag, empty bool) {
 	if s.Empty() {
-		j = JSXTag{}
+		j = XMLTag{}
 		empty = true
 	} else {
 		j = (*s)[len(*s)-1]
@@ -93,10 +93,10 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 
 			interpolationArray[i] = str
 		case TOK_JSX_O:
-			jsxStack.Push(JSXTag{i, token.Lexeme})
+			jsxStack.Push(XMLTag{i, token.Lexeme})
 			interpolationArray[i] = token.Lexeme
 		case TOK_JSX_X:
-			current := JSXTag{i, token.Lexeme}
+			current := XMLTag{i, token.Lexeme}
 
 			for {
 				next, empty := jsxStack.Pop()

@@ -11,35 +11,35 @@ import (
 )
 
 func TestTagTypeSimple(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<b>"}
+	tag := XMLTag{Index: 0, Tag: "<b>"}
 	if tag.Type() != "b" {
 		t.Errorf("got %q, wanted 'b'", tag.Type())
 	}
 }
 
 func TestTagTypeAHref(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<a href='#'>"}
+	tag := XMLTag{Index: 0, Tag: "<a href='#'>"}
 	if tag.Type() != "a" {
 		t.Errorf("got %q, wanted 'a'", tag.Type())
 	}
 }
 
 func TestSelfClosedTag(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<p/>"}
+	tag := XMLTag{Index: 0, Tag: "<p/>"}
 	if tag.Type() != "p" {
 		t.Errorf("got %q, wanted 'p'", tag.Type())
 	}
 }
 
 func TestClosingTag(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "</b>"}
+	tag := XMLTag{Index: 0, Tag: "</b>"}
 	if tag.Type() != "b" {
 		t.Errorf("got %q, wanted 'b'", tag.Type())
 	}
 }
 
 func TestAutoCloseTags(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<p>"}
+	tag := XMLTag{Index: 0, Tag: "<p>"}
 	if tag.Close() != "<p/>" {
 		t.Errorf("got %q, wanted '<p/>'", tag.Tag)
 	}
@@ -51,7 +51,7 @@ func TestAutoCloseTags(t *testing.T) {
 }
 
 func TestSimpleAttribute(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<a href='#'>"}
+	tag := XMLTag{Index: 0, Tag: "<a href='#'>"}
 	attributes := tag.Attributes()
 
 	if attributes["href"] != "#" {
@@ -60,7 +60,7 @@ func TestSimpleAttribute(t *testing.T) {
 }
 
 func TestMultipleAttributes(t *testing.T) {
-	tag := JSXTag{Index: 0, Tag: "<person name='bob' gender='male'>"}
+	tag := XMLTag{Index: 0, Tag: "<person name='bob' gender='male'>"}
 	attributes := tag.Attributes()
 
 	if attributes["name"] != "bob" {

@@ -8,12 +8,12 @@ package parser
 
 import "unicode"
 
-type JSXTag struct {
+type XMLTag struct {
 	Index int
 	Tag   string
 }
 
-func (j *JSXTag) Type() string {
+func (j *XMLTag) Type() string {
 	start, end := 1, 0
 
 	for i, value := range j.Tag {
@@ -38,7 +38,7 @@ func (j *JSXTag) Type() string {
 	return j.Tag[start:end]
 }
 
-func (j *JSXTag) Attributes() map[string]string {
+func (j *XMLTag) Attributes() map[string]string {
 	attributes := make(map[string]string)
 
 	tagType := j.Type()
@@ -79,7 +79,7 @@ func (j *JSXTag) Attributes() map[string]string {
 	return attributes
 }
 
-func (j *JSXTag) Close() string {
+func (j *XMLTag) Close() string {
 	isClosed := false
 	for i, value := range j.Tag {
 		if value == '>' && j.Tag[i-1] == '/' {
