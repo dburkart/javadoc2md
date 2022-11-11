@@ -184,7 +184,7 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 		}
 
 		if ret, found := v.Tags["@return"]; found {
-			f.WriteString("**Returns:** " + ret.Interpolate(doc, m.Symbols, "") + "\n\n")
+			f.WriteString("\n**Returns:** " + ret.Interpolate(doc, m.Symbols, "") + "\n\n")
 			needs_newline = true
 		}
 
