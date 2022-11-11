@@ -169,7 +169,7 @@ func ScanJSXTag(scanner *Scanner) ScanFn {
 			} else {
 				scanner.Emit(TOK_JSX_O)
 			}
-			return ScanJavadoc
+			return ScanJavadocLine
 		}
 	}
 }
