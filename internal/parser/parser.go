@@ -124,7 +124,9 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 
 		if t.Type == TOK_JDOC_PARAM_END {
 			inParam = false
-			block.Text = append(block.Text, *paramContents)
+			if paramContents != nil {
+				block.Text = append(block.Text, *paramContents)
+			}
 			paramContents = nil
 			continue
 		}
