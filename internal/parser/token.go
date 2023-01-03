@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Dana Burkart <dana.burkart@gmail.com>
+ * Copyright (c) 2022-2023, Dana Burkart <dana.burkart@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -15,12 +15,13 @@ const (
 	TOK_EOF
 
 	// This content exists only in JavaDocs
-	TOK_JDOC_START // /**
-	TOK_JDOC_END   //  */
-	TOK_JDOC_TAG   // @...
-	TOK_JDOC_PARAM // {@...
-	TOK_JDOC_NL    // Newlines are significant inside JavaDocs
-	TOK_JDOC_LINE  // everything else
+	TOK_JDOC_START     // /**
+	TOK_JDOC_END       //  */
+	TOK_JDOC_TAG       // @...
+	TOK_JDOC_PARAM     // {@...
+	TOK_JDOC_PARAM_END // }
+	TOK_JDOC_NL        // Newlines are significant inside JavaDocs
+	TOK_JDOC_LINE      // everything else
 
 	// JSX-related tags
 	TOK_JSX_O // <...>

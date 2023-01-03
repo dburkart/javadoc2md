@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Dana Burkart <dana.burkart@gmail.com>
+ * Copyright (c) 2022-2023, Dana Burkart <dana.burkart@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -231,13 +231,38 @@ func ScanJavadocParam(scanner *Scanner) ScanFn {
 			}
 
 			scanner.Inc()
-			scanner.Start += 1
+			scanner.Emit(TOK_JDOC_PARAM_END)
+
 			return ScanJavadocLine
 		}
 
 		if ch == '@' {
 			insideParam = true
 			continue
+		}
+
+		if ch == '\n' && !insideParam {
+			scanner.Rewind()
+			// Emit a line if we have one
+			if scanner.Start != scanner.Pos {
+				scanner.Emit(TOK_JDOC_LINE)
+			}
+
+			scanner.Inc()
+			scanner.Start += 1
+
+			// Eat whitespace / "*"
+			for {
+				ch = scanner.Next()
+
+				if unicode.IsSpace(ch) || ch == '*' {
+					scanner.Start += 1
+				} else {
+					break
+				}
+			}
+
+			scanner.Rewind()
 		}
 
 		if unicode.IsSpace(ch) && insideParam {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Dana Burkart <dana.burkart@gmail.com>
+ * Copyright (c) 2022-2023, Dana Burkart <dana.burkart@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -105,6 +105,9 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		return t
 	}
 
+	inParam := false
+	var paramContents *Token
+
 	// Make our Javadoc block
 	block := MakeBlock()
 	block.Doc = document
@@ -113,8 +116,28 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 	for {
 		t = <-scanner.Tokens
 
-		if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL || t.Type == TOK_JDOC_PARAM ||
-			t.Type == TOK_JSX_O || t.Type == TOK_JSX_X {
+		if t.Type == TOK_JDOC_PARAM {
+			inParam = true
+			block.Text = append(block.Text, t)
+			continue
+		}
+
+		if t.Type == TOK_JDOC_PARAM_END {
+			inParam = false
+			block.Text = append(block.Text, *paramContents)
+			paramContents = nil
+			continue
+		}
+
+		if inParam && (t.Type == TOK_JDOC_LINE || t.Type == TOK_JSX_O || t.Type == TOK_JSX_X) {
+			if paramContents == nil {
+				paramContents = &Token{}
+				paramContents.Type = t.Type
+				paramContents.Lexeme = t.Lexeme
+			} else {
+				paramContents.Lexeme = paramContents.Lexeme + t.Lexeme
+			}
+		} else if t.Type == TOK_JDOC_LINE || t.Type == TOK_JDOC_NL || t.Type == TOK_JSX_O || t.Type == TOK_JSX_X {
 			block.Text = append(block.Text, t)
 		} else {
 			break
@@ -137,10 +160,15 @@ func ParseJavadoc(scanner *Scanner, document *Document, t Token) Token {
 		// Tags can have multiple lines as their values, so we need to
 		// capture all lines until the next Tag / end
 		for {
-			if val.Type != TOK_JDOC_LINE && val.Type != TOK_JDOC_PARAM && val.Type != TOK_JDOC_NL &&
-				val.Type != TOK_JSX_O && val.Type != TOK_JSX_X {
+			if val.Type != TOK_JDOC_LINE && val.Type != TOK_JDOC_PARAM && val.Type != TOK_JDOC_PARAM_END &&
+				val.Type != TOK_JDOC_NL && val.Type != TOK_JSX_O && val.Type != TOK_JSX_X {
 				t = val
 				break
+			}
+
+			if val.Type == TOK_JDOC_PARAM_END {
+				val = <-scanner.Tokens
+				continue
 			}
 
 			if t.Lexeme == "@param" {
