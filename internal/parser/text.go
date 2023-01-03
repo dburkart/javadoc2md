@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Dana Burkart <dana.burkart@gmail.com>
+ * Copyright (c) 2022-2023, Dana Burkart <dana.burkart@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -66,9 +66,25 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 		case TOK_JDOC_PARAM:
 			str := ""
 			if token.Lexeme == "@code" {
-				str += "`"
+				inPre := false
+				// Check if for weird interactions, like being inside a <pre> tag, which
+				// cancels us out.
+				for _, tag := range jsxStack {
+					if tag.Type() == "pre" {
+						inPre = true
+						break
+					}
+				}
+
+				if !inPre {
+					str += "`"
+				}
+
 				str += strings.TrimSpace((*t)[i+1].Lexeme)
-				str += "`"
+
+				if !inPre {
+					str += "`"
+				}
 				i++
 			}
 

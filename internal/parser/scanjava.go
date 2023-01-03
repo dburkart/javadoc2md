@@ -241,8 +241,13 @@ func ScanJavadocParam(scanner *Scanner) ScanFn {
 			continue
 		}
 
-		if ch == '\n' && !insideParam {
+		if ch == '\n' {
 			scanner.Rewind()
+			if insideParam {
+				scanner.Emit(TOK_JDOC_PARAM)
+				insideParam = false
+			}
+
 			// Emit a line if we have one
 			if scanner.Start != scanner.Pos {
 				scanner.Emit(TOK_JDOC_LINE)

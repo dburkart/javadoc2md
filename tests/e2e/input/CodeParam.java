@@ -20,4 +20,16 @@ public class CodeParam {
     public long doSomething(long input) {
         return input;
     }
+
+    /**
+     * This is a weird way to write code, but it should work:
+     *
+     * <pre>
+     *  {@code
+     *  new Thing1("abcde","fghi")
+     *             .withOtherThing("example").andThing("thing");
+     *  }
+     * </pre>
+     */
+     public void weirdCodeBlock() {}
 }
