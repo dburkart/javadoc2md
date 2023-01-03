@@ -172,15 +172,27 @@ func (m *MarkdownVisitor) visit(doc *Document) (err bool, description string) {
 			needs_newline = true
 		}
 
-		// TODO: I'm not sure what the best way to ensure we get everything
-		//       from Javadocs written out since it may contain more than we
-		//       captured.
+		var paramOrder []string
+		resolvedParams := map[string]string{}
+		// First iterate over any arguments, detecting undocumented fields in the process
 		for _, value := range v.Arguments {
+			paramOrder = append(paramOrder, value.Name)
 			if description, found := v.Params[value.Name]; found {
-				f.WriteString("* `" + value.Name + "` - " + description.Interpolate(doc, m.Symbols, "") + "\n")
+				resolvedParams[value.Name] = description.Interpolate(doc, m.Symbols, "")
 			} else {
-				f.WriteString("* `" + value.Name + "` - *Undocumented*\n")
+				resolvedParams[value.Name] = "*Undocumented*"
 			}
+		}
+		// Now iterate over anything "extra" in our params
+		for k, v := range v.Params {
+			if _, found := resolvedParams[k]; !found {
+				paramOrder = append(paramOrder, k)
+				resolvedParams[k] = v.Interpolate(doc, m.Symbols, "")
+			}
+		}
+		// Finally, write out all params
+		for _, p := range paramOrder {
+			f.WriteString("* `" + p + "` - " + resolvedParams[p] + "\n")
 		}
 
 		if ret, found := v.Tags["@return"]; found {
