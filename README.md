@@ -8,7 +8,7 @@ could be used for other purposes.
 
 ## Installation
 
-You can install the latest version of `javadoc2md` go to your GOPATH using 
+You can install the latest version of `javadoc2md` to your GOPATH using 
 the following command:
 
 ```shell
