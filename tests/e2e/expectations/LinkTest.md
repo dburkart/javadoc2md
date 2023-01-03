@@ -38,6 +38,7 @@ Link to a class with multiple arguments: [thisFunctionIsLongWinded](FunctionDefO
 Link to an overloaded method: [overloadedMethod](LinkTest#overloadedMethod(int))
 Link to the other overloaded method: [overloadedMethod](LinkTest#overloadedMethod(int,int))
 Link spanning multiple lines: [overloadedMethod](LinkTest#overloadedMethod(int,int))
+Link (plain): [overloadedMethod](LinkTest#overloadedMethod(int,int))
 
 ### `public void overloadedMethod(int A)` {#overloadedMethod(int)}
 

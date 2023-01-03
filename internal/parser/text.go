@@ -88,7 +88,7 @@ func (t *Text) Interpolate(doc *Document, symbols SymbolMap, flowIndent string) 
 				i++
 			}
 
-			if token.Lexeme == "@link" {
+			if token.Lexeme == "@link" || token.Lexeme == "@linkplain" {
 				target := strings.ReplaceAll((*t)[i+1].Lexeme, " ", "")
 				target = strings.ReplaceAll(target, "\n", "")
 

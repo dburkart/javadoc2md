@@ -43,6 +43,7 @@
       * Link to the other overloaded method: {@link #overloadedMethod(int, int)}
       * Link spanning multiple lines: {@link #overloadedMethod(int,
       * int)}
+      * Link (plain): {@linkplain #overloadedMethod(int,int)}
       */
       public void testLinksWithArguments() {
 
